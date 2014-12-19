@@ -226,6 +226,7 @@ int kRBQDefaultCapacity = 4;
     
     NSString *data = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"USA-HotelMotel" ofType:@"csv"] encoding:NSASCIIStringEncoding error:nil];
     NSArray *lines = [data componentsSeparatedByString:@"\n"];
+    NSInteger count = lines.count - 1;
     
     // Get the root node from Realm
     RLMResults *rootNode = [QuadTreeNode objectsWhere:@"isRoot == YES"];
@@ -236,7 +237,7 @@ int kRBQDefaultCapacity = 4;
         // Break up the writing blocks into smaller portions
         // by starting a new transaction
         NSInteger batchSize = 1000;
-        NSInteger totalBatches = lines.count % batchSize ? lines.count/batchSize + 1 : lines.count/batchSize;
+        NSInteger totalBatches = count % batchSize ? count/batchSize + 1 : count/batchSize;
         
         DDLogInfo(@"Started Building Hotel DB");
         DDLogInfo(@"Total Batches:%li", (long)totalBatches);
@@ -250,7 +251,8 @@ int kRBQDefaultCapacity = 4;
             QuadTreeNode *root = [rootNode firstObject];
             
             NSUInteger startPoint = idx1 * batchSize;
-            NSUInteger length = batchSize < lines.count - idx1 * batchSize ? batchSize : lines.count - idx1 * batchSize;
+            
+            NSUInteger length = batchSize < count - idx1 * batchSize ? batchSize : count - idx1 * batchSize;
             
             NSArray *subArray = [lines subarrayWithRange:NSMakeRange(startPoint,length)];
             

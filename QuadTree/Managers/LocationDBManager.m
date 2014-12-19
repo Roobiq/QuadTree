@@ -44,13 +44,12 @@ int kRBQDefaultCapacity = 4;
 - (void)cleanUpRealm {
     /* Simply deleting all objects causes crash:
         ../tightdb/index_string.hpp:187: Assertion failed: Array::get_context_flag_from_header(alloc.translate(ref))
-    
+    */
     DDLogInfo(@"Started Delete All DB Data");
     [[RLMRealm defaultRealm] beginWriteTransaction];
     [[RLMRealm defaultRealm] deleteAllObjects];
     [[RLMRealm defaultRealm] commitWriteTransaction];
     DDLogInfo(@"Finished Delete All DB Data");
-     */
 }
 
 - (void)registerNotification {
@@ -67,6 +66,8 @@ int kRBQDefaultCapacity = 4;
 
 - (void)buildTreeInMemoryFirst {
     if ([self checkOnTree]) {
+        [self cleanUpRealm];
+        
         [self createTreeInMemoryFirst];
     }
 }
@@ -216,6 +217,8 @@ int kRBQDefaultCapacity = 4;
 
 - (void)buildTreeDirectlyInRealm {
     if ([self checkOnTree]) {
+        [self cleanUpRealm];
+        
         [self createTreeDirectlyInRealm];
     }
 }

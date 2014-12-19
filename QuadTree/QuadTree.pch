@@ -1,0 +1,19 @@
+//
+//  QuadTree.pch
+//  QuadTree
+//
+//  Created by Adam Fish on 12/19/14.
+//  Copyright (c) 2014 Roobiq. All rights reserved.
+//
+
+#ifndef QuadTree_QuadTree_pch
+#define QuadTree_QuadTree_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+
+// Logging
+#import <CocoaLumberjack/CocoaLumberjack.h>
+extern int ddLogLevel;
+
+#endif

@@ -52,11 +52,42 @@ NSString *kRBQAnnotationViewReuseID = @"RBQAnnotationViewReuseID";
 
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated {
     if (self.didSetUserLocation) {
+        [mapView removeAnnotations:mapView.annotations];
+        
+        MapAnnotation *annotation = [[MapAnnotation alloc]initWithCoordinate:mapView.centerCoordinate];
+        
+        annotation.title = @"Center";
+        annotation.isClosest = YES;
+        
+        [mapView addAnnotation:annotation];
+        
         [[NSOperationQueue new] addOperationWithBlock:^{
-            DDLogInfo(@"Requested Annotations");
-            NSArray *annotations = [self annotationsWithinMapRect:self.mapView.visibleMapRect];
-            DDLogInfo(@"Returned Annotations");
-            [self updateMapViewAnnotationsWithAnnotations:annotations];
+//            DDLogInfo(@"Requested Annotations");
+//            NSArray *annotations = [self annotationsWithinMapRect:self.mapView.visibleMapRect];
+//            DDLogInfo(@"Returned Annotations");
+//            [self updateMapViewAnnotationsWithAnnotations:annotations];
+            
+            // Get the 10 closest points
+            NSArray *closestPoints = [[LocationDBManager defaultManager] sortedNodeDataFromCoordinate:mapView.centerCoordinate maxResults:10];
+            
+            NSMutableArray *closestAnnotations = @[].mutableCopy;
+            
+            for (QuadTreeNodeData *data in closestPoints) {
+                CLLocationCoordinate2D coordinate = CLLocationCoordinate2DMake(data.latitude, data.longitude);
+                
+                if (CLLocationCoordinate2DIsValid(coordinate)) {
+                    MapAnnotation *annotation = [[MapAnnotation alloc]initWithCoordinate:coordinate];
+                    
+                    annotation.title = data.name;
+                    annotation.Id = data.Id;
+                    
+                    [closestAnnotations addObject:annotation];
+                }
+            }
+            
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                [mapView addAnnotations:closestAnnotations];
+            }];
         }];
     }
 }
@@ -70,6 +101,16 @@ NSString *kRBQAnnotationViewReuseID = @"RBQAnnotationViewReuseID";
         }
         else {
             annotationView.annotation = annotation;
+        }
+        
+        annotationView.pinColor = MKPinAnnotationColorRed;
+        
+        if ([annotation isKindOfClass:[MapAnnotation class]]) {
+            MapAnnotation *mapAnnotation = (MapAnnotation *)annotation;
+            
+            if (mapAnnotation.isClosest) {
+                annotationView.pinColor = MKPinAnnotationColorPurple;
+            }
         }
         
         annotationView.canShowCallout = YES;
@@ -93,19 +134,6 @@ didFailToLocateUserWithError:(NSError *)error {
 }
 
 #pragma mark - Private
-
-- (BoundingBox *)boundingBoxForMapRect:(MKMapRect)mapRect {
-    CLLocationCoordinate2D topLeft = MKCoordinateForMapPoint(mapRect.origin);
-    CLLocationCoordinate2D botRight = MKCoordinateForMapPoint(MKMapPointMake(MKMapRectGetMaxX(mapRect), MKMapRectGetMaxY(mapRect)));
-    
-    CLLocationDegrees minLat = botRight.latitude;
-    CLLocationDegrees maxLat = topLeft.latitude;
-    
-    CLLocationDegrees minLon = topLeft.longitude;
-    CLLocationDegrees maxLon = botRight.longitude;
-    
-    return [BoundingBox createBoundingBoxWithX:minLat y:minLon width:maxLat height:maxLon];
-}
 
 - (void)updateMapViewAnnotationsWithAnnotations:(NSArray *)annotations {
     NSMutableSet *before = [NSMutableSet setWithArray:self.mapView.annotations];
@@ -137,7 +165,7 @@ didFailToLocateUserWithError:(NSError *)error {
     if (rootNode.count == 1) {
         QuadTreeNode *root = [rootNode firstObject];
         [[LocationDBManager defaultManager] quadTreeGatherData:root
-                                                         range:[self boundingBoxForMapRect:rect]
+                                                         range:[[LocationDBManager defaultManager] boundingBoxForMapRect:rect]
                                                completionBlock:^(QuadTreeNodeData *data) {
                                                    
                                                    CLLocationCoordinate2D coordinate = CLLocationCoordinate2DMake(data.latitude, data.longitude);
@@ -146,6 +174,7 @@ didFailToLocateUserWithError:(NSError *)error {
                                                        MapAnnotation *annotation = [[MapAnnotation alloc]initWithCoordinate:coordinate];
                                                        
                                                        annotation.title = data.name;
+                                                       annotation.Id = data.Id;
                                                        
                                                        [annotations addObject:annotation];
                                                    }
@@ -184,6 +213,22 @@ didFailToLocateUserWithError:(NSError *)error {
         
         self.didSetUserLocation = YES;
     }
+}
+
+- (MapAnnotation *)annotationForId:(NSString *)Id {
+    for (MapAnnotation *annotation in self.mapView.annotations) {
+        
+        // disregard the user location annotation
+        if (![annotation isKindOfClass:[MKUserLocation class]] &&
+            [annotation isKindOfClass:[MapAnnotation class]]) {
+            
+            if ([annotation.Id isEqualToString:Id]) {
+                return annotation;
+            }
+        }
+    }
+    
+    return nil;
 }
 
 @end

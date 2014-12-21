@@ -30,14 +30,14 @@ int ddLogLevel = DDLogLevelError; // production = write only errors to console
     [DDLog addLogger:[DDASLLogger sharedInstance]];
     [DDLog addLogger:DDTTYLogger.sharedInstance];
     
-    DDLogInfo(@"Started Delete All DB Data");
-    DDLogInfo(@"Can Not Delete All Objects Due To Crash:\n\n../tightdb/index_string.hpp:187: Assertion failed: Array::get_context_flag_from_header(alloc.translate(ref))\n\n");
-    DDLogInfo(@"Deleting DefaultRealm.db File Instead");
-    NSError *error;
-    if (![[NSFileManager defaultManager] removeItemAtPath:[RLMRealm defaultRealm].path error:&error]) {
-        DDLogInfo(@"%@",error.localizedDescription);
-    }
-    DDLogInfo(@"Finished Delete All DB Data");
+//    DDLogInfo(@"Started Delete All DB Data");
+//    DDLogInfo(@"Can Not Delete All Objects Due To Crash:\n\n../tightdb/index_string.hpp:187: Assertion failed: Array::get_context_flag_from_header(alloc.translate(ref))\n\n");
+//    DDLogInfo(@"Deleting DefaultRealm.db File Instead");
+//    NSError *error;
+//    if (![[NSFileManager defaultManager] removeItemAtPath:[RLMRealm defaultRealm].path error:&error]) {
+//        DDLogInfo(@"%@",error.localizedDescription);
+//    }
+//    DDLogInfo(@"Finished Delete All DB Data");
     
     return YES;
 }

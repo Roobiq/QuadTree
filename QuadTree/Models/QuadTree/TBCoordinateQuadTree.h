@@ -14,6 +14,8 @@ typedef struct TBHotelInfo {
     char* hotelPhoneNumber;
 } TBHotelInfo;
 
+TBQuadTreeNodeData TBDataFromLine(NSString *line);
+
 @interface TBCoordinateQuadTree : NSObject
 
 @property (assign, nonatomic) TBQuadTreeNode* root;

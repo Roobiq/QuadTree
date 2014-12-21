@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		548494C21D49C179464C4921 /* libPods-QuadTree.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 92AB325640E6EE313A8C9DD3 /* libPods-QuadTree.a */; };
+		668D3C0F1A46184A006F258D /* RegionCluster.m in Sources */ = {isa = PBXBuildFile; fileRef = 668D3C0E1A46184A006F258D /* RegionCluster.m */; };
 		66DD1A991A44878300A09A53 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 66DD1A981A44878300A09A53 /* main.m */; };
 		66DD1A9C1A44878300A09A53 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 66DD1A9B1A44878300A09A53 /* AppDelegate.m */; };
 		66DD1A9F1A44878300A09A53 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 66DD1A9E1A44878300A09A53 /* ViewController.m */; };
@@ -40,6 +41,8 @@
 
 /* Begin PBXFileReference section */
 		120FE5FCBA858E7FDF051677 /* Pods-QuadTree.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QuadTree.release.xcconfig"; path = "Pods/Target Support Files/Pods-QuadTree/Pods-QuadTree.release.xcconfig"; sourceTree = "<group>"; };
+		668D3C0D1A46184A006F258D /* RegionCluster.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RegionCluster.h; path = Objects/RegionCluster.h; sourceTree = "<group>"; };
+		668D3C0E1A46184A006F258D /* RegionCluster.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RegionCluster.m; path = Objects/RegionCluster.m; sourceTree = "<group>"; };
 		66DD1A931A44878300A09A53 /* QuadTree.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QuadTree.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		66DD1A971A44878300A09A53 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		66DD1A981A44878300A09A53 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -98,6 +101,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		668D3C0C1A461818006F258D /* Objects */ = {
+			isa = PBXGroup;
+			children = (
+				668D3C0D1A46184A006F258D /* RegionCluster.h */,
+				668D3C0E1A46184A006F258D /* RegionCluster.m */,
+			);
+			name = Objects;
+			sourceTree = "<group>";
+		};
 		66DD1A8A1A44878300A09A53 = {
 			isa = PBXGroup;
 			children = (
@@ -121,6 +133,7 @@
 		66DD1A951A44878300A09A53 /* QuadTree */ = {
 			isa = PBXGroup;
 			children = (
+				668D3C0C1A461818006F258D /* Objects */,
 				66DD1AD71A448FFA00A09A53 /* Views */,
 				66DD1ACC1A448B4300A09A53 /* Managers */,
 				66DD1AC11A448B2600A09A53 /* Models */,
@@ -381,6 +394,7 @@
 				66DD1ADA1A448FFA00A09A53 /* MapAnnotation.m in Sources */,
 				66DD1AC91A448B2600A09A53 /* BoundingBox.m in Sources */,
 				66DD1AD61A448CD200A09A53 /* TBQuadTree.m in Sources */,
+				668D3C0F1A46184A006F258D /* RegionCluster.m in Sources */,
 				66DD1ABF1A44887F00A09A53 /* MapViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -507,8 +521,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/$(PROJECT_NAME)/QuadTree.pch";
 				INFOPLIST_FILE = QuadTree/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -520,8 +536,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/$(PROJECT_NAME)/QuadTree.pch";
 				INFOPLIST_FILE = QuadTree/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};

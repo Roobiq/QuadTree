@@ -9,6 +9,8 @@
 #import <Realm/Realm.h>
 #import "QuadTreeNode.h"
 
+#import <MapKit/MapKit.h>
+
 @interface QuadTreeNodeData : RLMObject
 
 // Related Object Info
@@ -20,6 +22,10 @@
 // CLLocationCoordinate2DIsValid(CLLocationCoordinate2D) if necessary
 @property double latitude;
 @property double longitude;
+@property (readonly) CLLocationCoordinate2D coordindate;
+
+// Ignored Properties
+@property double currentDistance;
 
 // Convenience Method
 + (QuadTreeNodeData *)createQuadTreeNodeDataWithLatitude:(double)latitude

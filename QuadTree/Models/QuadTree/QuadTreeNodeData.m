@@ -24,7 +24,8 @@
              @"objectType" : @"",
              @"name" : @"",
              @"latitude" : @91,
-             @"longitude" : @181
+             @"longitude" : @181,
+             @"currentDistance" : @100000
              };
 }
 
@@ -32,7 +33,7 @@
 
 //+ (NSArray *)ignoredProperties
 //{
-//    return @[];
+//    return @[@"currentDistance"];
 //}
 
 + (QuadTreeNodeData *)createQuadTreeNodeDataWithLatitude:(double)latitude
@@ -49,6 +50,17 @@
     nodeData.name = name;
     
     return nodeData;
+}
+
+- (CLLocationCoordinate2D)coordindate {
+    CLLocationCoordinate2D coordinate = CLLocationCoordinate2DMake(self.latitude, self.longitude);
+    
+    if (CLLocationCoordinate2DIsValid(coordinate)) {
+        return coordinate;
+    }
+    else {
+        return kCLLocationCoordinate2DInvalid;
+    }
 }
 
 @end

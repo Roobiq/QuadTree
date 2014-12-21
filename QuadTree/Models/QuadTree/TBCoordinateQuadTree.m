@@ -48,7 +48,7 @@ TBQuadTreeNodeData TBDataFromLine(NSString *line)
 //
 //    return MKMapRectMake(topLeft.x, botRight.y, fabs(botRight.x - topLeft.x), fabs(botRight.y - topLeft.y));
 //}
-
+//
 //NSInteger TBZoomScaleToZoomLevel(MKZoomScale scale)
 //{
 //    double totalTilesAtMaxZoom = MKMapSizeWorld.width / 256.0;

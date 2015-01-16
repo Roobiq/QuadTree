@@ -13,7 +13,7 @@
 #ifdef DEBUG
 int ddLogLevel = DDLogLevelInfo; // development = write up to INFO level to console
 #else
-int ddLogLevel = DDLogLevelError; // production = write only errors to console
+int ddLogLevel = DDLogLevelInfo; // production = write only errors to console
 #endif
 
 @interface AppDelegate ()

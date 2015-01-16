@@ -8,7 +8,6 @@
 
 #import "LocationManager.h"
 #import <NotificationCenter/NotificationCenter.h>
-#import "LocationDBManager.h"
 
 #pragma mark - Constants
 

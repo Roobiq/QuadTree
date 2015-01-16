@@ -7,8 +7,9 @@
 //
 
 #import "MapViewController.h"
-#import "LocationDBManager.h"
 #import "MapAnnotation.h"
+
+#import "RBQQuadTreeManager.h"
 
 #import <MapKit/MapKit.h>
 
@@ -52,8 +53,6 @@ NSString *kRBQAnnotationViewReuseID = @"RBQAnnotationViewReuseID";
 
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated {
     if (self.didSetUserLocation) {
-        [mapView removeAnnotations:mapView.annotations];
-        
         MapAnnotation *annotation = [[MapAnnotation alloc]initWithCoordinate:mapView.centerCoordinate];
         
         annotation.title = @"Center";
@@ -62,32 +61,32 @@ NSString *kRBQAnnotationViewReuseID = @"RBQAnnotationViewReuseID";
         [mapView addAnnotation:annotation];
         
         [[NSOperationQueue new] addOperationWithBlock:^{
-//            DDLogInfo(@"Requested Annotations");
-//            NSArray *annotations = [self annotationsWithinMapRect:self.mapView.visibleMapRect];
-//            DDLogInfo(@"Returned Annotations");
-//            [self updateMapViewAnnotationsWithAnnotations:annotations];
+            DDLogInfo(@"Requested Annotations");
+            NSArray *annotations = [self annotationsWithinMapRect:self.mapView.visibleMapRect];
+            DDLogInfo(@"Returned Annotations");
+            [self updateMapViewAnnotationsWithAnnotations:annotations];
             
-            // Get the 10 closest points
-            NSArray *closestPoints = [[LocationDBManager defaultManager] sortedNodeDataFromCoordinate:mapView.centerCoordinate maxResults:10];
-            
-            NSMutableArray *closestAnnotations = @[].mutableCopy;
-            
-            for (QuadTreeNodeData *data in closestPoints) {
-                CLLocationCoordinate2D coordinate = CLLocationCoordinate2DMake(data.latitude, data.longitude);
-                
-                if (CLLocationCoordinate2DIsValid(coordinate)) {
-                    MapAnnotation *annotation = [[MapAnnotation alloc]initWithCoordinate:coordinate];
-                    
-                    annotation.title = data.name;
-                    annotation.Id = data.Id;
-                    
-                    [closestAnnotations addObject:annotation];
-                }
-            }
-            
-            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                [mapView addAnnotations:closestAnnotations];
-            }];
+//            // Get the 10 closest points
+//            NSArray *closestPoints = [[LocationDBManager defaultManager] sortedNodeDataFromCoordinate:mapView.centerCoordinate maxResults:10];
+//            
+//            NSMutableArray *closestAnnotations = @[].mutableCopy;
+//            
+//            for (QuadTreeNodeData *data in closestPoints) {
+//                CLLocationCoordinate2D coordinate = CLLocationCoordinate2DMake(data.latitude, data.longitude);
+//                
+//                if (CLLocationCoordinate2DIsValid(coordinate)) {
+//                    MapAnnotation *annotation = [[MapAnnotation alloc]initWithCoordinate:coordinate];
+//                    
+//                    annotation.title = data.name;
+//                    annotation.Id = data.Id;
+//                    
+//                    [closestAnnotations addObject:annotation];
+//                }
+//            }
+//            
+//            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+//                [mapView addAnnotations:closestAnnotations];
+//            }];
         }];
     }
 }
@@ -150,8 +149,8 @@ didFailToLocateUserWithError:(NSError *)error {
     [toRemove minusSet:after];
     
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        [self.mapView addAnnotations:[toAdd allObjects]];
         [self.mapView removeAnnotations:[toRemove allObjects]];
+        [self.mapView addAnnotations:[toAdd allObjects]];
     }];
 }
 
@@ -159,28 +158,24 @@ didFailToLocateUserWithError:(NSError *)error {
     
     __block NSMutableArray *annotations = @[].mutableCopy;
     
-    // Get the root node from Realm
-    RLMResults *rootNode = [QuadTreeNode objectsWhere:@"isRoot == YES"];
+    RBQIndexRequest *indexRequest = [RBQIndexRequest createIndexRequestWithEntityName:@"TestDataObject"
+                                                                              inRealm:[RLMRealm defaultRealm]
+                                                                      latitudeKeyPath:@"latitude"
+                                                                     longitudeKeyPath:@"longitude"];
     
-    if (rootNode.count == 1) {
-        QuadTreeNode *root = [rootNode firstObject];
-        [[LocationDBManager defaultManager] quadTreeGatherData:root
-                                                         range:[[LocationDBManager defaultManager] boundingBoxForMapRect:rect]
-                                               completionBlock:^(QuadTreeNodeData *data) {
-                                                   
-                                                   CLLocationCoordinate2D coordinate = CLLocationCoordinate2DMake(data.latitude, data.longitude);
-                                                   
-                                                   if (CLLocationCoordinate2DIsValid(coordinate)) {
-                                                       MapAnnotation *annotation = [[MapAnnotation alloc]initWithCoordinate:coordinate];
-                                                       
-                                                       annotation.title = data.name;
-                                                       annotation.Id = data.Id;
-                                                       
-                                                       [annotations addObject:annotation];
-                                                   }
-                                                   
-                                               }];
-    }
+    RBQQuadTreeManager *manager = [RBQQuadTreeManager managerForIndexRequest:indexRequest];
+
+    [manager retrieveDataInMapRect:rect
+                   dataReturnBlock:^(RBQQuadTreeDataObject *data) {
+            
+            CLLocationCoordinate2D coordinate = CLLocationCoordinate2DMake(data.latitude, data.longitude);
+            
+            if (CLLocationCoordinate2DIsValid(coordinate)) {
+                MapAnnotation *annotation = [[MapAnnotation alloc]initWithCoordinate:coordinate];
+                
+                [annotations addObject:annotation];
+            }
+                   }];
     
     return [NSArray arrayWithArray:annotations];
 }

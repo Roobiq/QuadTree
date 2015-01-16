@@ -8,7 +8,16 @@
 
 /* Begin PBXBuildFile section */
 		548494C21D49C179464C4921 /* libPods-QuadTree.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 92AB325640E6EE313A8C9DD3 /* libPods-QuadTree.a */; };
-		668D3C0F1A46184A006F258D /* RegionCluster.m in Sources */ = {isa = PBXBuildFile; fileRef = 668D3C0E1A46184A006F258D /* RegionCluster.m */; };
+		6617B2571A685B4600C63F59 /* RBQBoundingBoxObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 6617B2521A685B4600C63F59 /* RBQBoundingBoxObject.m */; };
+		6617B2581A685B4600C63F59 /* RBQQuadTreeDataObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 6617B2541A685B4600C63F59 /* RBQQuadTreeDataObject.m */; };
+		6617B2591A685B4600C63F59 /* RBQQuadTreeNodeObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 6617B2561A685B4600C63F59 /* RBQQuadTreeNodeObject.m */; };
+		6617B2601A685B6400C63F59 /* RBQRealmNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6617B25B1A685B6400C63F59 /* RBQRealmNotificationManager.m */; };
+		6617B2611A685B6400C63F59 /* RBQSafeRealmObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 6617B25D1A685B6400C63F59 /* RBQSafeRealmObject.m */; };
+		6617B2621A685B6400C63F59 /* RLMObject+Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 6617B25F1A685B6400C63F59 /* RLMObject+Utilities.m */; };
+		6617B2651A685B8B00C63F59 /* TestDataObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 6617B2641A685B8B00C63F59 /* TestDataObject.m */; };
+		6617B2681A685BA700C63F59 /* RBQQuadTreeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6617B2671A685BA700C63F59 /* RBQQuadTreeManager.m */; };
+		6617B26B1A685C1C00C63F59 /* RBQIndexRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 6617B26A1A685C1C00C63F59 /* RBQIndexRequest.m */; };
+		6617B26E1A69ADC900C63F59 /* RBQQuadTreePropertiesObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 6617B26D1A69ADC900C63F59 /* RBQQuadTreePropertiesObject.m */; };
 		66DD1A991A44878300A09A53 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 66DD1A981A44878300A09A53 /* main.m */; };
 		66DD1A9C1A44878300A09A53 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 66DD1A9B1A44878300A09A53 /* AppDelegate.m */; };
 		66DD1A9F1A44878300A09A53 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 66DD1A9E1A44878300A09A53 /* ViewController.m */; };
@@ -17,12 +26,6 @@
 		66DD1AA71A44878300A09A53 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 66DD1AA51A44878300A09A53 /* LaunchScreen.xib */; };
 		66DD1AB31A44878300A09A53 /* QuadTreeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 66DD1AB21A44878300A09A53 /* QuadTreeTests.m */; };
 		66DD1ABF1A44887F00A09A53 /* MapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 66DD1ABD1A44887F00A09A53 /* MapViewController.m */; };
-		66DD1AC91A448B2600A09A53 /* BoundingBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 66DD1AC41A448B2600A09A53 /* BoundingBox.m */; };
-		66DD1ACA1A448B2600A09A53 /* QuadTreeNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 66DD1AC61A448B2600A09A53 /* QuadTreeNode.m */; };
-		66DD1ACB1A448B2600A09A53 /* QuadTreeNodeData.m in Sources */ = {isa = PBXBuildFile; fileRef = 66DD1AC81A448B2600A09A53 /* QuadTreeNodeData.m */; };
-		66DD1ACF1A448B4300A09A53 /* LocationDBManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 66DD1ACE1A448B4300A09A53 /* LocationDBManager.m */; };
-		66DD1AD51A448CD200A09A53 /* TBCoordinateQuadTree.m in Sources */ = {isa = PBXBuildFile; fileRef = 66DD1AD21A448CD200A09A53 /* TBCoordinateQuadTree.m */; };
-		66DD1AD61A448CD200A09A53 /* TBQuadTree.m in Sources */ = {isa = PBXBuildFile; fileRef = 66DD1AD41A448CD200A09A53 /* TBQuadTree.m */; };
 		66DD1ADA1A448FFA00A09A53 /* MapAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 66DD1AD91A448FFA00A09A53 /* MapAnnotation.m */; };
 		66DD1ADC1A4490CF00A09A53 /* USA-HotelMotel.csv in Resources */ = {isa = PBXBuildFile; fileRef = 66DD1ADB1A4490CF00A09A53 /* USA-HotelMotel.csv */; };
 		66DD1ADF1A4494CC00A09A53 /* LocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 66DD1ADE1A4494CC00A09A53 /* LocationManager.m */; };
@@ -41,8 +44,26 @@
 
 /* Begin PBXFileReference section */
 		120FE5FCBA858E7FDF051677 /* Pods-QuadTree.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QuadTree.release.xcconfig"; path = "Pods/Target Support Files/Pods-QuadTree/Pods-QuadTree.release.xcconfig"; sourceTree = "<group>"; };
-		668D3C0D1A46184A006F258D /* RegionCluster.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RegionCluster.h; path = Objects/RegionCluster.h; sourceTree = "<group>"; };
-		668D3C0E1A46184A006F258D /* RegionCluster.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RegionCluster.m; path = Objects/RegionCluster.m; sourceTree = "<group>"; };
+		6617B2511A685B4600C63F59 /* RBQBoundingBoxObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBQBoundingBoxObject.h; sourceTree = "<group>"; };
+		6617B2521A685B4600C63F59 /* RBQBoundingBoxObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RBQBoundingBoxObject.m; sourceTree = "<group>"; };
+		6617B2531A685B4600C63F59 /* RBQQuadTreeDataObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBQQuadTreeDataObject.h; sourceTree = "<group>"; };
+		6617B2541A685B4600C63F59 /* RBQQuadTreeDataObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RBQQuadTreeDataObject.m; sourceTree = "<group>"; };
+		6617B2551A685B4600C63F59 /* RBQQuadTreeNodeObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBQQuadTreeNodeObject.h; sourceTree = "<group>"; };
+		6617B2561A685B4600C63F59 /* RBQQuadTreeNodeObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RBQQuadTreeNodeObject.m; sourceTree = "<group>"; };
+		6617B25A1A685B6400C63F59 /* RBQRealmNotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBQRealmNotificationManager.h; sourceTree = "<group>"; };
+		6617B25B1A685B6400C63F59 /* RBQRealmNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RBQRealmNotificationManager.m; sourceTree = "<group>"; };
+		6617B25C1A685B6400C63F59 /* RBQSafeRealmObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBQSafeRealmObject.h; sourceTree = "<group>"; };
+		6617B25D1A685B6400C63F59 /* RBQSafeRealmObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RBQSafeRealmObject.m; sourceTree = "<group>"; };
+		6617B25E1A685B6400C63F59 /* RLMObject+Utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RLMObject+Utilities.h"; sourceTree = "<group>"; };
+		6617B25F1A685B6400C63F59 /* RLMObject+Utilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RLMObject+Utilities.m"; sourceTree = "<group>"; };
+		6617B2631A685B8B00C63F59 /* TestDataObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestDataObject.h; sourceTree = "<group>"; };
+		6617B2641A685B8B00C63F59 /* TestDataObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDataObject.m; sourceTree = "<group>"; };
+		6617B2661A685BA700C63F59 /* RBQQuadTreeManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBQQuadTreeManager.h; sourceTree = "<group>"; };
+		6617B2671A685BA700C63F59 /* RBQQuadTreeManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RBQQuadTreeManager.m; sourceTree = "<group>"; };
+		6617B2691A685C1C00C63F59 /* RBQIndexRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBQIndexRequest.h; sourceTree = "<group>"; };
+		6617B26A1A685C1C00C63F59 /* RBQIndexRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RBQIndexRequest.m; sourceTree = "<group>"; };
+		6617B26C1A69ADC900C63F59 /* RBQQuadTreePropertiesObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBQQuadTreePropertiesObject.h; sourceTree = "<group>"; };
+		6617B26D1A69ADC900C63F59 /* RBQQuadTreePropertiesObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RBQQuadTreePropertiesObject.m; sourceTree = "<group>"; };
 		66DD1A931A44878300A09A53 /* QuadTree.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QuadTree.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		66DD1A971A44878300A09A53 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		66DD1A981A44878300A09A53 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -58,19 +79,7 @@
 		66DD1AB21A44878300A09A53 /* QuadTreeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QuadTreeTests.m; sourceTree = "<group>"; };
 		66DD1ABC1A44887F00A09A53 /* MapViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapViewController.h; sourceTree = "<group>"; };
 		66DD1ABD1A44887F00A09A53 /* MapViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapViewController.m; sourceTree = "<group>"; };
-		66DD1AC31A448B2600A09A53 /* BoundingBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoundingBox.h; sourceTree = "<group>"; };
-		66DD1AC41A448B2600A09A53 /* BoundingBox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BoundingBox.m; sourceTree = "<group>"; };
-		66DD1AC51A448B2600A09A53 /* QuadTreeNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuadTreeNode.h; sourceTree = "<group>"; };
-		66DD1AC61A448B2600A09A53 /* QuadTreeNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QuadTreeNode.m; sourceTree = "<group>"; };
-		66DD1AC71A448B2600A09A53 /* QuadTreeNodeData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuadTreeNodeData.h; sourceTree = "<group>"; };
-		66DD1AC81A448B2600A09A53 /* QuadTreeNodeData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QuadTreeNodeData.m; sourceTree = "<group>"; };
-		66DD1ACD1A448B4300A09A53 /* LocationDBManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocationDBManager.h; sourceTree = "<group>"; };
-		66DD1ACE1A448B4300A09A53 /* LocationDBManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocationDBManager.m; sourceTree = "<group>"; };
 		66DD1AD01A448BE700A09A53 /* QuadTree.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuadTree.pch; sourceTree = "<group>"; };
-		66DD1AD11A448CD200A09A53 /* TBCoordinateQuadTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TBCoordinateQuadTree.h; sourceTree = "<group>"; };
-		66DD1AD21A448CD200A09A53 /* TBCoordinateQuadTree.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TBCoordinateQuadTree.m; sourceTree = "<group>"; };
-		66DD1AD31A448CD200A09A53 /* TBQuadTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TBQuadTree.h; sourceTree = "<group>"; };
-		66DD1AD41A448CD200A09A53 /* TBQuadTree.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TBQuadTree.m; sourceTree = "<group>"; };
 		66DD1AD81A448FFA00A09A53 /* MapAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapAnnotation.h; sourceTree = "<group>"; };
 		66DD1AD91A448FFA00A09A53 /* MapAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapAnnotation.m; sourceTree = "<group>"; };
 		66DD1ADB1A4490CF00A09A53 /* USA-HotelMotel.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "USA-HotelMotel.csv"; sourceTree = "<group>"; };
@@ -101,13 +110,45 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		668D3C0C1A461818006F258D /* Objects */ = {
+		6617B24E1A685AE700C63F59 /* RBQQuadTreeManager */ = {
 			isa = PBXGroup;
 			children = (
-				668D3C0D1A46184A006F258D /* RegionCluster.h */,
-				668D3C0E1A46184A006F258D /* RegionCluster.m */,
+				6617B24F1A685AE700C63F59 /* Helpers */,
+				6617B2501A685AE700C63F59 /* Models */,
+				6617B2661A685BA700C63F59 /* RBQQuadTreeManager.h */,
+				6617B2671A685BA700C63F59 /* RBQQuadTreeManager.m */,
+				6617B2691A685C1C00C63F59 /* RBQIndexRequest.h */,
+				6617B26A1A685C1C00C63F59 /* RBQIndexRequest.m */,
 			);
-			name = Objects;
+			path = RBQQuadTreeManager;
+			sourceTree = "<group>";
+		};
+		6617B24F1A685AE700C63F59 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				6617B25A1A685B6400C63F59 /* RBQRealmNotificationManager.h */,
+				6617B25B1A685B6400C63F59 /* RBQRealmNotificationManager.m */,
+				6617B25C1A685B6400C63F59 /* RBQSafeRealmObject.h */,
+				6617B25D1A685B6400C63F59 /* RBQSafeRealmObject.m */,
+				6617B25E1A685B6400C63F59 /* RLMObject+Utilities.h */,
+				6617B25F1A685B6400C63F59 /* RLMObject+Utilities.m */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+		6617B2501A685AE700C63F59 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				6617B2511A685B4600C63F59 /* RBQBoundingBoxObject.h */,
+				6617B2521A685B4600C63F59 /* RBQBoundingBoxObject.m */,
+				6617B2531A685B4600C63F59 /* RBQQuadTreeDataObject.h */,
+				6617B2541A685B4600C63F59 /* RBQQuadTreeDataObject.m */,
+				6617B2551A685B4600C63F59 /* RBQQuadTreeNodeObject.h */,
+				6617B2561A685B4600C63F59 /* RBQQuadTreeNodeObject.m */,
+				6617B26C1A69ADC900C63F59 /* RBQQuadTreePropertiesObject.h */,
+				6617B26D1A69ADC900C63F59 /* RBQQuadTreePropertiesObject.m */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		66DD1A8A1A44878300A09A53 = {
@@ -133,7 +174,7 @@
 		66DD1A951A44878300A09A53 /* QuadTree */ = {
 			isa = PBXGroup;
 			children = (
-				668D3C0C1A461818006F258D /* Objects */,
+				6617B24E1A685AE700C63F59 /* RBQQuadTreeManager */,
 				66DD1AD71A448FFA00A09A53 /* Views */,
 				66DD1ACC1A448B4300A09A53 /* Managers */,
 				66DD1AC11A448B2600A09A53 /* Models */,
@@ -182,26 +223,10 @@
 		66DD1AC11A448B2600A09A53 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				66DD1AC21A448B2600A09A53 /* QuadTree */,
+				6617B2631A685B8B00C63F59 /* TestDataObject.h */,
+				6617B2641A685B8B00C63F59 /* TestDataObject.m */,
 			);
 			path = Models;
-			sourceTree = "<group>";
-		};
-		66DD1AC21A448B2600A09A53 /* QuadTree */ = {
-			isa = PBXGroup;
-			children = (
-				66DD1AC31A448B2600A09A53 /* BoundingBox.h */,
-				66DD1AC41A448B2600A09A53 /* BoundingBox.m */,
-				66DD1AC51A448B2600A09A53 /* QuadTreeNode.h */,
-				66DD1AC61A448B2600A09A53 /* QuadTreeNode.m */,
-				66DD1AC71A448B2600A09A53 /* QuadTreeNodeData.h */,
-				66DD1AC81A448B2600A09A53 /* QuadTreeNodeData.m */,
-				66DD1AD11A448CD200A09A53 /* TBCoordinateQuadTree.h */,
-				66DD1AD21A448CD200A09A53 /* TBCoordinateQuadTree.m */,
-				66DD1AD31A448CD200A09A53 /* TBQuadTree.h */,
-				66DD1AD41A448CD200A09A53 /* TBQuadTree.m */,
-			);
-			path = QuadTree;
 			sourceTree = "<group>";
 		};
 		66DD1ACC1A448B4300A09A53 /* Managers */ = {
@@ -209,8 +234,6 @@
 			children = (
 				66DD1ADD1A4494CC00A09A53 /* LocationManager.h */,
 				66DD1ADE1A4494CC00A09A53 /* LocationManager.m */,
-				66DD1ACD1A448B4300A09A53 /* LocationDBManager.h */,
-				66DD1ACE1A448B4300A09A53 /* LocationDBManager.m */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -383,18 +406,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6617B2651A685B8B00C63F59 /* TestDataObject.m in Sources */,
 				66DD1ADF1A4494CC00A09A53 /* LocationManager.m in Sources */,
-				66DD1ACF1A448B4300A09A53 /* LocationDBManager.m in Sources */,
+				6617B2681A685BA700C63F59 /* RBQQuadTreeManager.m in Sources */,
+				6617B2621A685B6400C63F59 /* RLMObject+Utilities.m in Sources */,
 				66DD1A9F1A44878300A09A53 /* ViewController.m in Sources */,
-				66DD1AD51A448CD200A09A53 /* TBCoordinateQuadTree.m in Sources */,
+				6617B2571A685B4600C63F59 /* RBQBoundingBoxObject.m in Sources */,
 				66DD1A9C1A44878300A09A53 /* AppDelegate.m in Sources */,
-				66DD1ACB1A448B2600A09A53 /* QuadTreeNodeData.m in Sources */,
-				66DD1ACA1A448B2600A09A53 /* QuadTreeNode.m in Sources */,
 				66DD1A991A44878300A09A53 /* main.m in Sources */,
+				6617B2591A685B4600C63F59 /* RBQQuadTreeNodeObject.m in Sources */,
+				6617B2611A685B6400C63F59 /* RBQSafeRealmObject.m in Sources */,
+				6617B2601A685B6400C63F59 /* RBQRealmNotificationManager.m in Sources */,
+				6617B2581A685B4600C63F59 /* RBQQuadTreeDataObject.m in Sources */,
+				6617B26E1A69ADC900C63F59 /* RBQQuadTreePropertiesObject.m in Sources */,
+				6617B26B1A685C1C00C63F59 /* RBQIndexRequest.m in Sources */,
 				66DD1ADA1A448FFA00A09A53 /* MapAnnotation.m in Sources */,
-				66DD1AC91A448B2600A09A53 /* BoundingBox.m in Sources */,
-				66DD1AD61A448CD200A09A53 /* TBQuadTree.m in Sources */,
-				668D3C0F1A46184A006F258D /* RegionCluster.m in Sources */,
 				66DD1ABF1A44887F00A09A53 /* MapViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

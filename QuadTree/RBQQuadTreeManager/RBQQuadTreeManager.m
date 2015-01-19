@@ -144,13 +144,21 @@ indexRequest = _indexRequest;
         
         RBQQuadTreePropertiesObject *properties = [manager currentQuadTreeProperties];
         
+        RLMRealm *realm = manager.indexRequest.realm;
+        
+        NSUInteger mainDataCount =
+        [NSClassFromString(manager.indexRequest.entityName) allObjectsInRealm:realm].count;
+        
+        NSUInteger dataCount = [RBQQuadTreeDataObject allObjectsInRealm:realm].count;
+        
         // The indexing was interrupted, restart it
         if (properties.quadTreeIndexState == RBQQuadTreeIndexStateIndexing) {
             
             [manager rebuildIndex];
         }
-        else if (properties.quadTreeIndexState == RBQQuadTreeIndexStatePreparingData) {
-            // Get all the data from the track entity
+        // The loading of data failed to complete, restart it from scratch and then index
+        else if (properties.quadTreeIndexState == RBQQuadTreeIndexStatePreparingData ||
+                 dataCount != mainDataCount) {
             
             [manager reloadAllDataAndIndex];
         }

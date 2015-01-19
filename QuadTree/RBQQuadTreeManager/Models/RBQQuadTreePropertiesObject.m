@@ -30,6 +30,13 @@ double kRBQPercentChangeUntilReindex = 0.2;
     return @"key";
 }
 
++ (NSDictionary *)defaultPropertyValues
+{
+    return @{@"totalInitialPoints" : @0,
+             @"quadTreeIndexState" : @0
+             };
+}
+
 #pragma mark - Getters
 
 - (NSInteger)totalPoints

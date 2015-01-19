@@ -9,7 +9,6 @@
 #import "RBQQuadTreeManager.h"
 #import "RLMObject+Utilities.h"
 #import "RBQRealmNotificationManager.h"
-#import "RBQQuadTreePropertiesObject.h"
 
 #import <MapKit/MapKit.h>
 
@@ -44,6 +43,21 @@ RBQQuadTreeManager *cachedQuadTreeManager(NSString *entityName) {
         }
         
         return [entityNameToManagerMap objectForKey:entityName];
+    }
+}
+
+#pragma mark - Public Functions
+
+NSString * NSStringFromQuadTreeIndexState(RBQQuadTreeIndexState state) {
+    switch (state) {
+        case RBQQuadTreeIndexStatePreparingData:
+            return @"Preparing Data";
+        case RBQQuadTreeIndexStateIndexing:
+            return @"Indexing";
+        case RBQQuadTreeIndexStateReady:
+            return @"Ready";
+        default:
+            return nil;
     }
 }
 
@@ -121,9 +135,26 @@ indexRequest = _indexRequest;
 {
     RBQQuadTreeManager *manager = [RBQQuadTreeManager managerForIndexRequest:indexRequest];
     
-//    if (!manager.notificationToken) {
-    [manager registerNotifications];
-//    }
+    if (!manager.notificationToken) {
+        [manager registerNotifications];
+    }
+    
+    // Dispatch a process to check if we need to rebuild the index
+    dispatch_async(manager.serialIndexQueue, ^(){
+        
+        RBQQuadTreePropertiesObject *properties = [manager currentQuadTreeProperties];
+        
+        // The indexing was interrupted, restart it
+        if (properties.quadTreeIndexState == RBQQuadTreeIndexStateIndexing) {
+            
+            [manager rebuildIndex];
+        }
+        else if (properties.quadTreeIndexState == RBQQuadTreeIndexStatePreparingData) {
+            // Get all the data from the track entity
+            
+            [manager reloadAllDataAndIndex];
+        }
+    });
 }
 
 + (void)stopOnDemandIndexingForIndexRequest:(RBQIndexRequest *)indexRequest
@@ -142,17 +173,21 @@ indexRequest = _indexRequest;
     NSString *className = [RLMObject classNameForObject:object];
     if ([className isEqualToString:self.indexRequest.entityName]) {
         
-        NSSet *safeObjects = [self addOrUpdateObjectsInIndexAndReturnSafeObjects:@[object]];
+        NSSet *safeObjects = [self addOrUpdateObjectsInIndexAndReturnSafeObjects:@[object]
+                                                                 processingCount:1];
         
-        [self indexSafeObjects:safeObjects];
+        [self indexSafeObjects:safeObjects forceFullWipe:NO];
     }
 }
 
 - (void)insertObjects:(id<NSFastEnumeration>)objects
 {
-    NSSet *safeObjects = [self addOrUpdateObjectsInIndexAndReturnSafeObjects:objects];
+    NSUInteger count = (NSUInteger)[(NSObject *)objects valueForKey:@"count"];
     
-    [self indexSafeObjects:safeObjects];
+    NSSet *safeObjects = [self addOrUpdateObjectsInIndexAndReturnSafeObjects:objects
+                                                             processingCount:count];
+    
+    [self indexSafeObjects:safeObjects forceFullWipe:NO];
 }
 
 - (void)removeObject:(RLMObject *)object
@@ -191,18 +226,22 @@ indexRequest = _indexRequest;
         
         if (entityChangesObject) {
             
-            // Gather up all of the safe objects that will be indexed
-            NSSet *allSafeObjectsToIndex = [entityChangesObject.addedSafeObjects setByAddingObjectsFromSet:entityChangesObject.changedSafeObjects];
-            
-            if (allSafeObjectsToIndex.count > 0) {
-                [self addOrUpdateSafeObjectsInIndex:allSafeObjectsToIndex];
+            dispatch_async(self.serialIndexQueue, ^(){
+                // Gather up all of the safe objects that will be indexed
+                NSSet *allSafeObjectsToIndex = [entityChangesObject.addedSafeObjects setByAddingObjectsFromSet:entityChangesObject.changedSafeObjects];
                 
-                [self indexSafeObjects:allSafeObjectsToIndex];
-            }
-            
-            if (entityChangesObject.deletedSafeObjects.count > 0) {
-                [self deleteObjectsWithSafeObjectsInIndex:entityChangesObject.deletedSafeObjects];
-            }
+                if (allSafeObjectsToIndex.count > 0) {
+                    [self updatePropertiesState:RBQQuadTreeIndexStateIndexing];
+                    
+                    [self addOrUpdateSafeObjectsInIndex:allSafeObjectsToIndex];
+                    
+                    [self indexSafeObjects:allSafeObjectsToIndex forceFullWipe:NO];
+                }
+                
+                if (entityChangesObject.deletedSafeObjects.count > 0) {
+                    [self deleteObjectsWithSafeObjectsInIndex:entityChangesObject.deletedSafeObjects];
+                }
+            });
         }
     }];
 }
@@ -222,9 +261,21 @@ indexRequest = _indexRequest;
 
 // Return an array of RBQSafeRealmObjects
 - (NSSet *)addOrUpdateObjectsInIndexAndReturnSafeObjects:(id<NSFastEnumeration>)objects
+                                         processingCount:(NSUInteger)processingCount
 {
     @autoreleasepool {
-        NSMutableSet *safeObjects = [[NSMutableSet alloc] init];
+        
+        [self updatePropertiesState:RBQQuadTreeIndexStatePreparingData];
+        
+        dispatch_async(dispatch_get_main_queue(), ^(){
+            if ([self.delegate respondsToSelector:@selector(managerWillBeginIndexing:currentState:)]) {
+                [self.delegate managerWillBeginIndexing:self
+                                           currentState:RBQQuadTreeIndexStatePreparingData];
+            }
+            
+        });
+        
+        NSMutableSet *safeObjects = [[NSMutableSet alloc] initWithCapacity:processingCount];
         
         RLMRealm *realmIndex = [self currentRealmIndex];
         
@@ -232,7 +283,10 @@ indexRequest = _indexRequest;
         
         [realmIndex beginWriteTransaction];
         
+        NSUInteger count = 0;
+        
         for (RLMObject *object in objects) {
+            count ++;
             
             RBQQuadTreeDataObject *data =
             [RBQQuadTreeDataObject createQuadTreeDataObjectWithObject:object
@@ -240,6 +294,17 @@ indexRequest = _indexRequest;
                                                      longitudeKeyPath:self.indexRequest.longitudeKeyPath];
             
             [realmIndex addOrUpdateObject:data];
+            
+            CGFloat percentIndexed = (CGFloat)count/(2.f * processingCount);
+            
+            dispatch_async(dispatch_get_main_queue(), ^(){
+                if ([self.delegate respondsToSelector:@selector(managerDidUpdate:currentState:percentIndexed:)]) {
+                    [self.delegate managerDidUpdate:self
+                                       currentState:RBQQuadTreeIndexStatePreparingData
+                                     percentIndexed:percentIndexed];
+                }
+                
+            });
             
             [safeObjects addObject:[RBQSafeRealmObject safeObjectFromObject:data]];
         }
@@ -255,13 +320,27 @@ indexRequest = _indexRequest;
 - (void)addOrUpdateSafeObjectsInIndex:(NSSet *)safeObjects
 {
     @autoreleasepool {
+        [self updatePropertiesState:RBQQuadTreeIndexStatePreparingData];
+        
+        dispatch_async(dispatch_get_main_queue(), ^(){
+            if ([self.delegate respondsToSelector:@selector(managerWillBeginIndexing:currentState:)]) {
+                [self.delegate managerWillBeginIndexing:self
+                                           currentState:RBQQuadTreeIndexStatePreparingData];
+            }
+            
+        });
+        
         RLMRealm *realmIndex = [self currentRealmIndex];
         
         NSLog(@"Started Writing Objects To Index");
         
         [realmIndex beginWriteTransaction];
         
+        NSUInteger count = 0;
+        
         for (RBQSafeRealmObject *object in safeObjects) {
+            
+            count ++;
             
             RBQQuadTreeDataObject *data =
             [RBQQuadTreeDataObject createQuadTreeDataObjectWithSafeObject:object
@@ -269,6 +348,17 @@ indexRequest = _indexRequest;
                                                          longitudeKeyPath:self.indexRequest.longitudeKeyPath];
             
             [realmIndex addOrUpdateObject:data];
+            
+            CGFloat percentIndexed = (CGFloat)count/(CGFloat)(2 * safeObjects.count);
+            
+            dispatch_async(dispatch_get_main_queue(), ^(){
+                if ([self.delegate respondsToSelector:@selector(managerDidUpdate:currentState:percentIndexed:)]) {
+                    [self.delegate managerDidUpdate:self
+                                       currentState:RBQQuadTreeIndexStatePreparingData
+                                     percentIndexed:percentIndexed];
+                }
+                
+            });
         }
         
         [realmIndex commitWriteTransaction];
@@ -332,12 +422,18 @@ indexRequest = _indexRequest;
 #pragma mark - Indexing Methods
 
 - (void)indexSafeObjects:(NSSet *)safeObjects
+           forceFullWipe:(BOOL)fullWipe
 {
     dispatch_async(self.serialIndexQueue, ^(){
         NSLog(@"Started Building Quad Tree");
         
+        [self updatePropertiesState:RBQQuadTreeIndexStateIndexing];
+        
         // If we have a lot of safe objects, then clear index and start from scratch
-        if (safeObjects.count > kRBQMaxCountUntilFulLWipe) {
+        if (safeObjects.count > kRBQMaxCountUntilFulLWipe ||
+            [RBQQuadTreeDataObject allObjectsInRealm:[self currentRealmIndex]].count == 0 ||
+            fullWipe) {
+            
             [self clearIndex];
         }
     
@@ -347,10 +443,24 @@ indexRequest = _indexRequest;
     });
 }
 
+- (void)reloadAllDataAndIndex
+{
+    dispatch_async(self.serialIndexQueue, ^(){
+        RLMResults *allData = [NSClassFromString(self.indexRequest.entityName) allObjectsInRealm:self.indexRequest.realm];
+        
+        NSSet *safeObjects = [self addOrUpdateObjectsInIndexAndReturnSafeObjects:allData
+                                                                 processingCount:allData.count];
+        
+        [self indexSafeObjects:safeObjects forceFullWipe:YES];
+    });
+}
+
 - (void)rebuildIndex
 {
     dispatch_async(self.serialIndexQueue, ^(){
         NSLog(@"Started Re-building Quad Tree");
+        
+        [self updatePropertiesState:RBQQuadTreeIndexStateIndexing];
         
         [self clearIndex];
         
@@ -389,11 +499,7 @@ indexRequest = _indexRequest;
     @autoreleasepool {
         _isIndexing = YES;
         
-        dispatch_async(dispatch_get_main_queue(), ^(){
-            if ([self.delegate respondsToSelector:@selector(managerWillBeginIndexing:)]) {
-                [self.delegate managerWillBeginIndexing:self];
-            }
-        });
+        // We already called the willBegin delegate as part of the inital data processing
         
         RLMRealm *realmIndex = [self realmForEntityName:self.indexRequest.entityName];
         
@@ -415,12 +521,17 @@ indexRequest = _indexRequest;
             
             index ++;
             
+            /* Percent indexed is based off of 2x the object count since we are already at 50%
+             since 'indexing' includes saving the objects as RBQQuadTreeDataObjects
+             */
+            CGFloat percentIndexed = ((CGFloat)index + (CGFloat)safeObjects.count)/(CGFloat)(safeObjects.count * 2);
+            
             dispatch_async(dispatch_get_main_queue(), ^(){
-                if ([self.delegate respondsToSelector:@selector(manager:percentIndexedUpdated:)]) {
+                if ([self.delegate respondsToSelector:@selector(managerDidUpdate:currentState:percentIndexed:)]) {
                     
-                    CGFloat percentIndexed = (float)index/(float)safeObjects.count;
-                    
-                    [self.delegate manager:self percentIndexedUpdated:percentIndexed];
+                    [self.delegate managerDidUpdate:self
+                                       currentState:RBQQuadTreeIndexStateIndexing
+                                     percentIndexed:percentIndexed];
                 }
             });
             
@@ -435,10 +546,13 @@ indexRequest = _indexRequest;
     
         // Update the number of points in the quad tree
         [self updatePropertiesPointsCountInRealm:realmIndex];
+        
+        // Update the state that we are finished
+        [self updatePropertiesState:RBQQuadTreeIndexStateReady];
     
         dispatch_async(dispatch_get_main_queue(), ^(){
-            if ([self.delegate respondsToSelector:@selector(managerDidEndIndexing:)]) {
-                [self.delegate managerDidEndIndexing:self];
+            if ([self.delegate respondsToSelector:@selector(managerDidEndIndexing:currentState:)]) {
+                [self.delegate managerDidEndIndexing:self currentState:RBQQuadTreeIndexStateReady];
             }
         });
         
@@ -446,6 +560,7 @@ indexRequest = _indexRequest;
     }
 }
 
+// Only called without any inserts
 - (void)performIndexingInRealm:(RLMRealm *)realmIndex
                    withAllData:(RLMResults *)allData
 {
@@ -453,8 +568,8 @@ indexRequest = _indexRequest;
         _isIndexing = YES;
         
         dispatch_async(dispatch_get_main_queue(), ^(){
-            if ([self.delegate respondsToSelector:@selector(managerWillBeginIndexing:)]) {
-                [self.delegate managerWillBeginIndexing:self];
+            if ([self.delegate respondsToSelector:@selector(managerWillBeginIndexing:currentState:)]) {
+                [self.delegate managerWillBeginIndexing:self currentState:RBQQuadTreeIndexStateIndexing];
             }
         });
         
@@ -463,6 +578,7 @@ indexRequest = _indexRequest;
         [realmIndex beginWriteTransaction];
         
         NSUInteger index = 0;
+        CGFloat floatCount = (float)allData.count;
         
         for (RBQQuadTreeDataObject *data in allData) {
             
@@ -471,12 +587,14 @@ indexRequest = _indexRequest;
             
             index ++;
             
+            CGFloat percentIndexed = (float)index/floatCount;
+            
             dispatch_async(dispatch_get_main_queue(), ^(){
-                if ([self.delegate respondsToSelector:@selector(manager:percentIndexedUpdated:)]) {
+                if ([self.delegate respondsToSelector:@selector(managerDidUpdate:currentState:percentIndexed:)]) {
                     
-                    CGFloat percentIndexed = (float)index/(float)allData.count;
-                    
-                    [self.delegate manager:self percentIndexedUpdated:percentIndexed];
+                    [self.delegate managerDidUpdate:self
+                                       currentState:RBQQuadTreeIndexStateIndexing
+                                     percentIndexed:percentIndexed];
                 }
             });
             
@@ -491,10 +609,13 @@ indexRequest = _indexRequest;
     
         // Update the number of points in the quad tree
         [self updatePropertiesPointsCountInRealm:realmIndex];
+        
+        // Update the state that we are finished
+        [self updatePropertiesState:RBQQuadTreeIndexStateReady];
     
         dispatch_async(dispatch_get_main_queue(), ^(){
-            if ([self.delegate respondsToSelector:@selector(managerDidEndIndexing:)]) {
-                [self.delegate managerDidEndIndexing:self];
+            if ([self.delegate respondsToSelector:@selector(managerDidEndIndexing:currentState:)]) {
+                [self.delegate managerDidEndIndexing:self currentState:RBQQuadTreeIndexStateReady];
             }
         });
         
@@ -690,6 +811,19 @@ indexRequest = _indexRequest;
 {
     return [RBQQuadTreePropertiesObject objectInRealm:realm
                                         forPrimaryKey:@(self.indexRequest.hash)];
+}
+
+- (void)updatePropertiesState:(RBQQuadTreeIndexState)quadTreeIndexState
+{
+    RLMRealm *realmIndex = [self currentRealmIndex];
+    
+    [realmIndex beginWriteTransaction];
+    
+    RBQQuadTreePropertiesObject *properties = [self currentQuadTreeProperties];
+    
+    properties.quadTreeIndexState = quadTreeIndexState;
+    
+    [realmIndex commitWriteTransaction];
 }
 
 // Create Realm instance for entity name

@@ -18,8 +18,8 @@
  Also, the insert and delete start from the beginning of the hotel data set.
  */
 
-NSUInteger kRBQTestInsertAmount = 83000;
-NSUInteger kRBQTestDeleteAmount = 5000;
+NSUInteger kRBQTestInsertAmount = 50000;
+NSUInteger kRBQTestDeleteAmount = 20000;
 
 @interface ViewController ()
 @property (strong, nonatomic) IBOutlet UIActivityIndicatorView *inMemorySpinner;
@@ -114,7 +114,7 @@ NSUInteger kRBQTestDeleteAmount = 5000;
                 [[RBQRealmNotificationManager managerForRealm:realm] didAddObject:object];
                 
                 if (i % 1000 == 0){
-                    NSLog(@"Index: %d", i);
+                    NSLog(@"Index: %ld", (long)i);
                 }
             }
         }
@@ -163,7 +163,7 @@ NSUInteger kRBQTestDeleteAmount = 5000;
                 }
                 
                 if (i % 1000 == 0){
-                    NSLog(@"Index: %d", i);
+                    NSLog(@"Index: %ld", (long)i);
                 }
             }
         }
@@ -189,15 +189,6 @@ NSUInteger kRBQTestDeleteAmount = 5000;
     
     [LocationManager startLocatingForPermissionWithUpdateBlock:successBlock
                                                    failedBlock:failedBlock];
-    
-//    if (![LocationDBManager defaultManager].treeBuilt) {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Tree Not Built"
-                                                        message:@"Build Tree First To See Annotations"
-                                                       delegate:nil
-                                              cancelButtonTitle:@"OK"
-                                              otherButtonTitles:nil];
-        [alert show];
-//    }
 }
 
 @end

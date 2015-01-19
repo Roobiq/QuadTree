@@ -18,6 +18,8 @@
 
 @property NSString *key;
 
+@property BOOL isIndexed;
+
 + (instancetype)createTestDataObjectWithName:(NSString *)name
                                     latitude:(double)latitude
                                    longitude:(double)longitude;

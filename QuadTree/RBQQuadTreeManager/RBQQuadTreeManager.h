@@ -15,8 +15,9 @@
 #import "RBQQuadTreeDataObject.h"
 #import "RBQQuadTreeNodeObject.h"
 #import "RBQBoundingBoxObject.h"
+#import "RBQQuadTreePropertiesObject.h"
 
-#pragma - Constants
+@class RBQQuadTreeManager;
 
 /**
  *  Block that is used by retrieval methods of RBQQuadTreeManager to pass back identified data for the given query.
@@ -25,7 +26,7 @@
  */
 typedef void(^RBQDataReturnBlock)(RBQQuadTreeDataObject *data);
 
-@class RBQQuadTreeManager;
+extern NSString * NSStringFromQuadTreeIndexState(RBQQuadTreeIndexState state);
 
 /**
  *  Delegate methods to pass along the status of any indexing that is occurring in RBQQuadTreeManager
@@ -37,24 +38,31 @@ typedef void(^RBQDataReturnBlock)(RBQQuadTreeDataObject *data);
 /**
  *  Reports to the delegate that the manager is about to begin indexing
  *
- *  @param manager The instance of RBQQuadTreeManager
+ *  @param manager  The instance of RBQQuadTreeManager
+ *  @param state    The current state of the indexing process
  */
-- (void)managerWillBeginIndexing:(RBQQuadTreeManager *)manager;
+- (void)managerWillBeginIndexing:(RBQQuadTreeManager *)manager
+                    currentState:(RBQQuadTreeIndexState)state;
 
 /**
  *  Reports to the delegate that the manager updated its percent indexed
  *
  *  @param manager        The instance of RBQQuadTreeManager
+ *  @param state          The current state of the indexing process
  *  @param percentIndexed The percent indexed in the current indexing operation
  */
-- (void)manager:(RBQQuadTreeManager *)manager percentIndexedUpdated:(CGFloat)percentIndexed;
+- (void)managerDidUpdate:(RBQQuadTreeManager *)manager
+            currentState:(RBQQuadTreeIndexState)state
+          percentIndexed:(CGFloat)percentIndexed;
 
 /**
  *  Reports to the delegate that the manager did finish indexing
  *
- *  @param manager The instance of RBQQuadTreeManager
+ *  @param manager  The instance of RBQQuadTreeManager
+ *  @param state    The current state of the indexing process
  */
-- (void)managerDidEndIndexing:(RBQQuadTreeManager *)manager;
+- (void)managerDidEndIndexing:(RBQQuadTreeManager *)manager
+                 currentState:(RBQQuadTreeIndexState)state;
 
 @end
 

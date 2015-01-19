@@ -15,10 +15,16 @@
 
 NSString *kRBQAnnotationViewReuseID = @"RBQAnnotationViewReuseID";
 
-@interface MapViewController () <MKMapViewDelegate>
+@interface MapViewController () <MKMapViewDelegate, RBQQuadTreeManagerDelegate>
 
 @property (strong, nonatomic) IBOutlet MKMapView *mapView;
 @property (assign, nonatomic) BOOL didSetUserLocation;
+@property (strong, nonatomic) IBOutlet UIProgressView *progressView;
+@property (strong, nonatomic) RBQIndexRequest *indexRequest;
+@property (strong, nonatomic) IBOutlet UIView *notificationView;
+@property (strong, nonatomic) IBOutlet NSLayoutConstraint *notificationViewTopConstraint;
+@property (strong, nonatomic) IBOutlet UILabel *progressLabel;
+@property (strong, nonatomic) IBOutlet NSLayoutConstraint *backButtonTopConstraint;
 
 @end
 
@@ -27,6 +33,17 @@ NSString *kRBQAnnotationViewReuseID = @"RBQAnnotationViewReuseID";
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
+    self.indexRequest = [RBQIndexRequest createIndexRequestWithEntityName:@"TestDataObject"
+                                                                  inRealm:[RLMRealm defaultRealm]
+                                                          latitudeKeyPath:@"latitude"
+                                                         longitudeKeyPath:@"longitude"];
+    
+    RBQQuadTreeManager *manager = [RBQQuadTreeManager managerForIndexRequest:self.indexRequest];
+    manager.delegate = self;
+    
+    if (!manager.isIndexing) {
+        [self animateNotificationView:YES];
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -132,7 +149,75 @@ didFailToLocateUserWithError:(NSError *)error {
     DDLogInfo(@"%@", error.localizedDescription);
 }
 
+#pragma mark - RBQQuadTreeManagerDelegate
+
+- (void)managerWillBeginIndexing:(RBQQuadTreeManager *)manager currentState:(RBQQuadTreeIndexState)state
+{
+    self.progressView.hidden = NO;
+    
+    self.progressLabel.text = NSStringFromQuadTreeIndexState(state);
+    
+    self.progressView.progress = 0.f;
+    
+    [self animateNotificationView:YES];
+}
+
+- (void)managerDidUpdate:(RBQQuadTreeManager *)manager currentState:(RBQQuadTreeIndexState)state percentIndexed:(CGFloat)percentIndexed
+{
+    self.progressView.hidden = NO;
+    
+    self.progressLabel.text = NSStringFromQuadTreeIndexState(state);
+    
+    self.progressView.progress = percentIndexed;
+}
+
+- (void)managerDidEndIndexing:(RBQQuadTreeManager *)manager
+                 currentState:(RBQQuadTreeIndexState)state
+{
+    self.progressView.hidden = YES;
+    
+    self.progressLabel.text = NSStringFromQuadTreeIndexState(state);
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self animateNotificationView:NO];
+    });
+}
+
 #pragma mark - Private
+
+- (void)animateNotificationView:(BOOL)animate
+{
+    /*
+     Per Apple's recommendations, you should call layoutIfNeeded
+     on the parent view first to ensure all display updates complete
+     
+     Then within the animation block you must call it again after
+     updating the constraints
+     */
+    
+    [self.notificationView layoutIfNeeded];
+    [self.view layoutIfNeeded];
+    
+    void (^animations)() = ^{
+        if (animate) {
+            self.notificationViewTopConstraint.constant = -20.f;
+            self.backButtonTopConstraint.constant = 64.f;
+        }
+        else {
+            self.notificationViewTopConstraint.constant = -84.f;
+            self.backButtonTopConstraint.constant = 20.f;
+        }
+        
+        [self.notificationView layoutIfNeeded];
+        [self.view layoutIfNeeded];
+    };
+    
+    [UIView animateWithDuration:0.25f
+                          delay:0
+                        options:kNilOptions
+                     animations:animations
+                     completion:nil];
+}
 
 - (void)updateMapViewAnnotationsWithAnnotations:(NSArray *)annotations {
     NSMutableSet *before = [NSMutableSet setWithArray:self.mapView.annotations];
@@ -158,12 +243,7 @@ didFailToLocateUserWithError:(NSError *)error {
     
     __block NSMutableArray *annotations = @[].mutableCopy;
     
-    RBQIndexRequest *indexRequest = [RBQIndexRequest createIndexRequestWithEntityName:@"TestDataObject"
-                                                                              inRealm:[RLMRealm defaultRealm]
-                                                                      latitudeKeyPath:@"latitude"
-                                                                     longitudeKeyPath:@"longitude"];
-    
-    RBQQuadTreeManager *manager = [RBQQuadTreeManager managerForIndexRequest:indexRequest];
+    RBQQuadTreeManager *manager = [RBQQuadTreeManager managerForIndexRequest:self.indexRequest];
 
     [manager retrieveDataInMapRect:rect
                    dataReturnBlock:^(RBQQuadTreeDataObject *data) {

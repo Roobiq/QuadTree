@@ -34,7 +34,7 @@
 /**
  *  Primary key type. Can be RLMPropertyTypeString or RLMPropertyTypeInt. Stored to assist in converting the primary key value into its original state.
  */
-@property NSInteger primaryKeyType;
+@property RLMPropertyType primaryKeyType;
 
 /**
  *  Latitude value for data point. Default value is invalid.
@@ -56,7 +56,7 @@
  
     Note: the default lat/long are invalid if not set, so use CLLocationCoordinate2DIsValid() if necessary.
  */
-@property (readonly) CLLocationCoordinate2D coordindate;
+@property (readonly) CLLocationCoordinate2D coordinate;
 
 /**
  *  RBQQuadTreeNodeObjects that contain this object.
@@ -102,9 +102,23 @@
  */
 + (instancetype)createQuadTreeDataObjectForClassName:(NSString *)className
                                primaryKeyStringValue:(NSString *)primaryKeyStringValue
-                                      primaryKeyType:(NSInteger)primaryKeyType
+                                      primaryKeyType:(RLMPropertyType)primaryKeyType
                                             latitude:(double)latitude
                                            longitude:(double)longitude;
+
+///**
+// *  Convenience method to retrieve the primary key value by converting the string value to the correct value based on the type.
+// *
+// *  @return Original RLMObject's primary key value. Can be RLMPropertyTypeString or RLMPropertyTypeInt.
+// */
+//- (id)primaryKeyValue;
+
+/**
+ *  Convenience method to retrieve a RBQSafeRealmObject for the original object represented by the data
+ *
+ *  @return A instance of RBQSafeRealmObject for the original object
+ */
+- (RBQSafeRealmObject *)originalSafeObject;
 
 @end
 

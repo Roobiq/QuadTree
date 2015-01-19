@@ -25,6 +25,7 @@
     
     RBQQuadTreeDataObject *dataObject = [[RBQQuadTreeDataObject alloc] init];
     dataObject.className = [RLMObject classNameForObject:object];
+    dataObject.primaryKeyType = object.objectSchema.primaryKeyProperty.type;
     
     id primaryKeyValue = [RLMObject primaryKeyValueForObject:object];
     
@@ -62,8 +63,9 @@
 {
     RBQQuadTreeDataObject *dataObject = [[RBQQuadTreeDataObject alloc] init];
     dataObject.className = safeObject.className;
+    dataObject.primaryKeyType = safeObject.primaryKeyType;
     
-    if (safeObject.primaryKeyProperty.type == RLMPropertyTypeString) {
+    if (safeObject.primaryKeyType == RLMPropertyTypeString) {
         dataObject.primaryKeyStringValue = (NSString *)safeObject.primaryKeyValue;
     }
     else {
@@ -96,7 +98,7 @@
 
 + (instancetype)createQuadTreeDataObjectForClassName:(NSString *)className
                                primaryKeyStringValue:(NSString *)primaryKeyStringValue
-                                      primaryKeyType:(NSInteger)primaryKeyType
+                                      primaryKeyType:(RLMPropertyType)primaryKeyType
                                             latitude:(double)latitude
                                            longitude:(double)longitude
 {
@@ -137,9 +139,27 @@
     return @"primaryKeyStringValue";
 }
 
+#pragma mark - Public Instance
+
+- (RBQSafeRealmObject *)originalSafeObject
+{
+    if (self.primaryKeyType == RLMPropertyTypeString) {
+        return [[RBQSafeRealmObject alloc] initWithClassName:self.className
+                                             primaryKeyValue:self.primaryKeyStringValue
+                                              primaryKeyType:self.primaryKeyType
+                                                       realm:self.realm];
+    }
+    
+    return [[RBQSafeRealmObject alloc] initWithClassName:self.className
+                                         primaryKeyValue:@(self.primaryKeyStringValue.longLongValue)
+                                          primaryKeyType:self.primaryKeyType
+                                                   realm:self.realm];
+}
+
 #pragma mark - Getters
 
-- (CLLocationCoordinate2D)coordindate {
+- (CLLocationCoordinate2D)coordinate
+{
     CLLocationCoordinate2D coordinate = CLLocationCoordinate2DMake(self.latitude, self.longitude);
     
     if (CLLocationCoordinate2DIsValid(coordinate)) {

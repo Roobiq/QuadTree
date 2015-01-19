@@ -8,6 +8,8 @@
 
 #import "MapViewController.h"
 #import "MapAnnotation.h"
+#import "RBQClusterAnnotation.h"
+#import "TBClusterAnnotationView.h"
 
 #import "RBQQuadTreeManager.h"
 
@@ -30,7 +32,8 @@ NSString *kRBQAnnotationViewReuseID = @"RBQAnnotationViewReuseID";
 
 @implementation MapViewController
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
     self.indexRequest = [RBQIndexRequest createIndexRequestWithEntityName:@"TestDataObject"
@@ -41,12 +44,13 @@ NSString *kRBQAnnotationViewReuseID = @"RBQAnnotationViewReuseID";
     RBQQuadTreeManager *manager = [RBQQuadTreeManager managerForIndexRequest:self.indexRequest];
     manager.delegate = self;
     
-    if (!manager.isIndexing) {
+    if (manager.isIndexing) {
         [self animateNotificationView:YES];
     }
 }
 
-- (void)viewWillAppear:(BOOL)animated {
+- (void)viewWillAppear:(BOOL)animated
+{
     [super viewWillAppear:animated];
     
     if (self.mapView.userLocation) {
@@ -55,97 +59,148 @@ NSString *kRBQAnnotationViewReuseID = @"RBQAnnotationViewReuseID";
     }
 }
 
-- (void)didReceiveMemoryWarning {
+- (void)didReceiveMemoryWarning
+{
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
 
 #pragma mark - Buttons
 
-- (IBAction)didClickBackButton:(UIButton *)sender {
+- (IBAction)didClickBackButton:(UIButton *)sender
+{
     [self dismissViewControllerAnimated:YES completion:^(void){}];
 }
 
 #pragma mark - MKMapViewDelegate
 
-- (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated {
-    if (self.didSetUserLocation) {
-        MapAnnotation *annotation = [[MapAnnotation alloc]initWithCoordinate:mapView.centerCoordinate];
+- (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
+{
+    [[NSOperationQueue new] addOperationWithBlock:^{
+        double scale = self.mapView.bounds.size.width / self.mapView.visibleMapRect.size.width;
+        RBQQuadTreeManager *manager = [RBQQuadTreeManager managerForIndexRequest:self.indexRequest];
+        NSSet *annotations = [manager clusteredAnnotationsWithinMapRect:mapView.visibleMapRect
+                                                          withZoomScale:scale
+                                                           titleKeyPath:@"name"
+                                                        subTitleKeyPath:nil];
         
-        annotation.title = @"Center";
-        annotation.isClosest = YES;
         
-        [mapView addAnnotation:annotation];
-        
-        [[NSOperationQueue new] addOperationWithBlock:^{
-            DDLogInfo(@"Requested Annotations");
-            NSArray *annotations = [self annotationsWithinMapRect:self.mapView.visibleMapRect];
-            DDLogInfo(@"Returned Annotations");
-            [self updateMapViewAnnotationsWithAnnotations:annotations];
-            
-//            // Get the 10 closest points
-//            NSArray *closestPoints = [[LocationDBManager defaultManager] sortedNodeDataFromCoordinate:mapView.centerCoordinate maxResults:10];
-//            
-//            NSMutableArray *closestAnnotations = @[].mutableCopy;
-//            
-//            for (QuadTreeNodeData *data in closestPoints) {
-//                CLLocationCoordinate2D coordinate = CLLocationCoordinate2DMake(data.latitude, data.longitude);
-//                
-//                if (CLLocationCoordinate2DIsValid(coordinate)) {
-//                    MapAnnotation *annotation = [[MapAnnotation alloc]initWithCoordinate:coordinate];
-//                    
-//                    annotation.title = data.name;
-//                    annotation.Id = data.Id;
-//                    
-//                    [closestAnnotations addObject:annotation];
-//                }
-//            }
-//            
-//            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-//                [mapView addAnnotations:closestAnnotations];
-//            }];
-        }];
-    }
+        [manager displayAnnotations:annotations
+                          onMapView:mapView];
+    }];
 }
 
-- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation {
-    if (![annotation isKindOfClass:[MKUserLocation class]]) {
-        MKPinAnnotationView *annotationView = (MKPinAnnotationView *)[mapView dequeueReusableAnnotationViewWithIdentifier:kRBQAnnotationViewReuseID];
-        if (annotationView == nil) {
-            annotationView = [[MKPinAnnotationView alloc] initWithAnnotation:annotation
-                                                             reuseIdentifier:kRBQAnnotationViewReuseID];
-        }
-        else {
-            annotationView.annotation = annotation;
-        }
-        
-        annotationView.pinColor = MKPinAnnotationColorRed;
-        
-        if ([annotation isKindOfClass:[MapAnnotation class]]) {
-            MapAnnotation *mapAnnotation = (MapAnnotation *)annotation;
-            
-            if (mapAnnotation.isClosest) {
-                annotationView.pinColor = MKPinAnnotationColorPurple;
-            }
-        }
-        
-        annotationView.canShowCallout = YES;
-        annotationView.animatesDrop = YES;
-        
-        return annotationView;
+- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation
+{
+    static NSString *const TBAnnotatioViewReuseID = @"TBAnnotatioViewReuseID";
+    
+    TBClusterAnnotationView *annotationView = (TBClusterAnnotationView *)[mapView dequeueReusableAnnotationViewWithIdentifier:TBAnnotatioViewReuseID];
+    
+    if (!annotationView) {
+        annotationView = [[TBClusterAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:TBAnnotatioViewReuseID];
     }
     
-    return nil;
+    annotationView.canShowCallout = YES;
+    
+    if ([annotation isKindOfClass:[RBQClusterAnnotation class]]) {
+        RBQClusterAnnotation *clusterAnnotation= (RBQClusterAnnotation *)annotation;
+        annotationView.count = clusterAnnotation.safeObjects.count;
+    }
+    
+    return annotationView;
 }
 
+- (void)mapView:(MKMapView *)mapView didAddAnnotationViews:(NSArray *)views
+{
+    for (UIView *view in views) {
+        [self addBounceAnnimationToView:view];
+    }
+}
+
+//#pragma mark - MKMapViewDelegate
+//
+//- (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
+//{
+//    if (self.didSetUserLocation) {
+//        MapAnnotation *annotation = [[MapAnnotation alloc]initWithCoordinate:mapView.centerCoordinate];
+//        
+//        annotation.title = @"Center";
+//        annotation.isClosest = YES;
+//        
+//        [mapView addAnnotation:annotation];
+//        
+//        [[NSOperationQueue new] addOperationWithBlock:^{
+//            DDLogInfo(@"Requested Annotations");
+//            NSArray *annotations = [self annotationsWithinMapRect:self.mapView.visibleMapRect];
+//            DDLogInfo(@"Returned Annotations");
+//            [self updateMapViewAnnotationsWithAnnotations:annotations];
+//            
+////            // Get the 10 closest points
+////            NSArray *closestPoints = [[LocationDBManager defaultManager] sortedNodeDataFromCoordinate:mapView.centerCoordinate maxResults:10];
+////            
+////            NSMutableArray *closestAnnotations = @[].mutableCopy;
+////            
+////            for (QuadTreeNodeData *data in closestPoints) {
+////                CLLocationCoordinate2D coordinate = CLLocationCoordinate2DMake(data.latitude, data.longitude);
+////                
+////                if (CLLocationCoordinate2DIsValid(coordinate)) {
+////                    MapAnnotation *annotation = [[MapAnnotation alloc]initWithCoordinate:coordinate];
+////                    
+////                    annotation.title = data.name;
+////                    annotation.Id = data.Id;
+////                    
+////                    [closestAnnotations addObject:annotation];
+////                }
+////            }
+////            
+////            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+////                [mapView addAnnotations:closestAnnotations];
+////            }];
+//        }];
+//    }
+//}
+
+//- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation
+//{
+//    if (![annotation isKindOfClass:[MKUserLocation class]]) {
+//        MKPinAnnotationView *annotationView = (MKPinAnnotationView *)[mapView dequeueReusableAnnotationViewWithIdentifier:kRBQAnnotationViewReuseID];
+//        if (annotationView == nil) {
+//            annotationView = [[MKPinAnnotationView alloc] initWithAnnotation:annotation
+//                                                             reuseIdentifier:kRBQAnnotationViewReuseID];
+//        }
+//        else {
+//            annotationView.annotation = annotation;
+//        }
+//        
+//        annotationView.pinColor = MKPinAnnotationColorRed;
+//        
+//        if ([annotation isKindOfClass:[MapAnnotation class]]) {
+//            MapAnnotation *mapAnnotation = (MapAnnotation *)annotation;
+//            
+//            if (mapAnnotation.isClosest) {
+//                annotationView.pinColor = MKPinAnnotationColorPurple;
+//            }
+//        }
+//        
+//        annotationView.canShowCallout = YES;
+//        annotationView.animatesDrop = YES;
+//        
+//        return annotationView;
+//    }
+//    
+//    return nil;
+//}
+
 - (void)mapView:(MKMapView *)mapView
-didUpdateUserLocation:(MKUserLocation *)userLocation {
+didUpdateUserLocation:(MKUserLocation *)userLocation
+{
     
     [self animateMapToUserLocation:userLocation animated:YES];
 }
 
 - (void)mapView:(MKMapView *)mapView
-didFailToLocateUserWithError:(NSError *)error {
+didFailToLocateUserWithError:(NSError *)error
+{
     DDLogInfo(@"%@", error.localizedDescription);
 }
 
@@ -155,7 +210,7 @@ didFailToLocateUserWithError:(NSError *)error {
 {
     self.progressView.hidden = NO;
     
-    self.progressLabel.text = NSStringFromQuadTreeIndexState(state);
+    self.progressLabel.text = RBQNSStringFromQuadTreeIndexState(state);
     
     self.progressView.progress = 0.f;
     
@@ -166,7 +221,7 @@ didFailToLocateUserWithError:(NSError *)error {
 {
     self.progressView.hidden = NO;
     
-    self.progressLabel.text = NSStringFromQuadTreeIndexState(state);
+    self.progressLabel.text = RBQNSStringFromQuadTreeIndexState(state);
     
     self.progressView.progress = percentIndexed;
 }
@@ -176,7 +231,7 @@ didFailToLocateUserWithError:(NSError *)error {
 {
     self.progressView.hidden = YES;
     
-    self.progressLabel.text = NSStringFromQuadTreeIndexState(state);
+    self.progressLabel.text = RBQNSStringFromQuadTreeIndexState(state);
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self animateNotificationView:NO];
@@ -219,27 +274,8 @@ didFailToLocateUserWithError:(NSError *)error {
                      completion:nil];
 }
 
-- (void)updateMapViewAnnotationsWithAnnotations:(NSArray *)annotations {
-    NSMutableSet *before = [NSMutableSet setWithArray:self.mapView.annotations];
-    [before removeObject:[self.mapView userLocation]];
-    NSSet *after = [NSSet setWithArray:annotations];
-    
-    NSMutableSet *toKeep = [NSMutableSet setWithSet:before];
-    [toKeep intersectSet:after];
-    
-    NSMutableSet *toAdd = [NSMutableSet setWithSet:after];
-    [toAdd minusSet:toKeep];
-    
-    NSMutableSet *toRemove = [NSMutableSet setWithSet:before];
-    [toRemove minusSet:after];
-    
-    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        [self.mapView removeAnnotations:[toRemove allObjects]];
-        [self.mapView addAnnotations:[toAdd allObjects]];
-    }];
-}
-
-- (NSArray *)annotationsWithinMapRect:(MKMapRect)rect {
+- (NSArray *)annotationsWithinMapRect:(MKMapRect)rect
+{
     
     __block NSMutableArray *annotations = @[].mutableCopy;
     
@@ -260,7 +296,8 @@ didFailToLocateUserWithError:(NSError *)error {
     return [NSArray arrayWithArray:annotations];
 }
 
-- (MKCoordinateRegion)coordinateRegionForAnnotations:(NSArray *)annotations {
+- (MKCoordinateRegion)coordinateRegionForAnnotations:(NSArray *)annotations
+{
     MKMapRect r = MKMapRectNull;
     
     for (NSUInteger i=0; i < annotations.count; ++i) {
@@ -270,7 +307,8 @@ didFailToLocateUserWithError:(NSError *)error {
     return MKCoordinateRegionForMapRect(r);
 }
 
-- (void)animateMapToUserLocation:(MKUserLocation *)userLocation animated:(BOOL)animated {
+- (void)animateMapToUserLocation:(MKUserLocation *)userLocation animated:(BOOL)animated
+{
     MKMapRect visibleMapRect = self.mapView.visibleMapRect;
     NSSet *visibleAnnotations = [self.mapView annotationsInMapRect:visibleMapRect];
     BOOL annotationIsVisible = [visibleAnnotations containsObject:userLocation];
@@ -290,7 +328,8 @@ didFailToLocateUserWithError:(NSError *)error {
     }
 }
 
-- (MapAnnotation *)annotationForId:(NSString *)Id {
+- (MapAnnotation *)annotationForId:(NSString *)Id
+{
     for (MapAnnotation *annotation in self.mapView.annotations) {
         
         // disregard the user location annotation
@@ -305,5 +344,23 @@ didFailToLocateUserWithError:(NSError *)error {
     
     return nil;
 }
+
+- (void)addBounceAnnimationToView:(UIView *)view
+{
+    CAKeyframeAnimation *bounceAnimation = [CAKeyframeAnimation animationWithKeyPath:@"transform.scale"];
+    
+    bounceAnimation.values = @[@(0.05), @(1.1), @(0.9), @(1)];
+    
+    bounceAnimation.duration = 0.6;
+    NSMutableArray *timingFunctions = [[NSMutableArray alloc] initWithCapacity:bounceAnimation.values.count];
+    for (NSUInteger i = 0; i < bounceAnimation.values.count; i++) {
+        [timingFunctions addObject:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]];
+    }
+    [bounceAnimation setTimingFunctions:timingFunctions.copy];
+    bounceAnimation.removedOnCompletion = NO;
+    
+    [view.layer addAnimation:bounceAnimation forKey:@"bounce"];
+}
+
 
 @end

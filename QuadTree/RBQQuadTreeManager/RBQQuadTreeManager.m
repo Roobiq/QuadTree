@@ -9,6 +9,7 @@
 #import "RBQQuadTreeManager.h"
 #import "RLMObject+Utilities.h"
 #import "RBQRealmNotificationManager.h"
+#import "RBQClusterAnnotation.h"
 
 #import <MapKit/MapKit.h>
 
@@ -48,7 +49,7 @@ RBQQuadTreeManager *cachedQuadTreeManager(NSString *entityName) {
 
 #pragma mark - Public Functions
 
-NSString * NSStringFromQuadTreeIndexState(RBQQuadTreeIndexState state) {
+NSString * RBQNSStringFromQuadTreeIndexState(RBQQuadTreeIndexState state) {
     switch (state) {
         case RBQQuadTreeIndexStatePreparingData:
             return @"Preparing Data";
@@ -58,6 +59,36 @@ NSString * NSStringFromQuadTreeIndexState(RBQQuadTreeIndexState state) {
             return @"Ready";
         default:
             return nil;
+    }
+}
+
+NSInteger RBQZoomScaleToZoomLevel(MKZoomScale scale)
+{
+    double totalTilesAtMaxZoom = MKMapSizeWorld.width / 256.0;
+    NSInteger zoomLevelAtMaxZoom = log2(totalTilesAtMaxZoom);
+    NSInteger zoomLevel = MAX(0, zoomLevelAtMaxZoom + floor(log2f(scale) + 0.5));
+    
+    return zoomLevel;
+}
+
+float RBQCellSizeForZoomScale(MKZoomScale zoomScale)
+{
+    NSInteger zoomLevel = RBQZoomScaleToZoomLevel(zoomScale);
+    
+    switch (zoomLevel) {
+        case 13:
+        case 14:
+        case 15:
+            return 64;
+        case 16:
+        case 17:
+        case 18:
+            return 32;
+        case 19:
+            return 16;
+            
+        default:
+            return 88;
     }
 }
 
@@ -217,6 +248,74 @@ indexRequest = _indexRequest;
     [self quadTreeGatherDataWithRange:rootNode
                           boundingBox:boundingBox
                       dataReturnBlock:block];
+}
+
+- (NSSet *)clusteredAnnotationsWithinMapRect:(MKMapRect)rect
+                               withZoomScale:(MKZoomScale)zoomScale
+                                titleKeyPath:(NSString *)titleKeyPath
+                             subTitleKeyPath:(NSString *)subTitleKeyPath
+{
+    double RBQCellSize = RBQCellSizeForZoomScale(zoomScale);
+    double scaleFactor = zoomScale / RBQCellSize;
+    
+    NSInteger minX = floor(MKMapRectGetMinX(rect) * scaleFactor);
+    NSInteger maxX = floor(MKMapRectGetMaxX(rect) * scaleFactor);
+    NSInteger minY = floor(MKMapRectGetMinY(rect) * scaleFactor);
+    NSInteger maxY = floor(MKMapRectGetMaxY(rect) * scaleFactor);
+    
+    NSMutableSet *clusteredAnnotations = [[NSMutableSet alloc] init];
+    for (NSInteger x = minX; x <= maxX; x++) {
+        for (NSInteger y = minY; y <= maxY; y++) {
+            MKMapRect mapRect = MKMapRectMake(x / scaleFactor, y / scaleFactor, 1.0 / scaleFactor, 1.0 / scaleFactor);
+            
+            __block double totalLat = 0;
+            __block double totalLon = 0;
+            __block int count = 0;
+            
+            RBQClusterAnnotation *annotation = [[RBQClusterAnnotation alloc] initWithTitleKeyPath:titleKeyPath
+                                                                                  subTitleKeyPath:subTitleKeyPath];
+            
+            [self retrieveDataInMapRect:mapRect dataReturnBlock:^(RBQQuadTreeDataObject *data) {
+                totalLat += data.latitude;
+                totalLon += data.longitude;
+                count++;
+                
+                [annotation addSafeObjectToCluster:[data originalSafeObject]];
+            }];
+            
+            if (count == 1) {
+                annotation.coordinate = CLLocationCoordinate2DMake(totalLat, totalLon);
+            }
+            else if (count > 1) {
+                annotation.coordinate = CLLocationCoordinate2DMake(totalLat / count, totalLon / count);
+            }
+            
+            [clusteredAnnotations addObject:annotation];
+        }
+    }
+    
+    return clusteredAnnotations.copy;
+}
+
+- (void)displayAnnotations:(NSSet *)annotations onMapView:(MKMapView *)mapView
+{
+    NSMutableSet *before = [NSMutableSet setWithArray:mapView.annotations];
+    [before removeObject:[mapView userLocation]];
+    NSSet *after = [NSSet setWithSet:annotations];
+    
+    NSMutableSet *toKeep = [NSMutableSet setWithSet:before];
+    [toKeep intersectSet:after];
+    
+    NSMutableSet *toAdd = [NSMutableSet setWithSet:after];
+    [toAdd minusSet:toKeep];
+    
+    NSMutableSet *toRemove = [NSMutableSet setWithSet:before];
+    [toRemove minusSet:after];
+    
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        [mapView addAnnotations:[toAdd allObjects]];
+        [mapView removeAnnotations:[toRemove allObjects]];
+    }];
 }
 
 #pragma mark - Private

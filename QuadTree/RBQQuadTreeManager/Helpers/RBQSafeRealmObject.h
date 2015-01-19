@@ -29,12 +29,27 @@
 /**
  *  Original RLMObject's primary key property
  */
-@property (nonatomic, readonly, copy) RLMProperty *primaryKeyProperty;
+@property (nonatomic, readonly) RLMPropertyType primaryKeyType;
 
 /**
  *  The Realm in which this object is persisted
  */
 @property (nonatomic, readonly) RLMRealm *realm;
+
+/**
+ *  Constructor method to create an instance of RBQSafeRealmObject
+ *
+ *  @param className       class name for the original RLMObject
+ *  @param primaryKeyValue primary key value for the original RLMObject
+ *  @param primaryKeyType  primary key type for the original RLMObject
+ *  @param realm           Realm in which the original RLMObject is persisted
+ *
+ *  @return A new instance of RBQSafeRealmObject
+ */
+- (id)initWithClassName:(NSString *)className
+        primaryKeyValue:(id)primaryKeyValue
+         primaryKeyType:(RLMPropertyType)primaryKeyType
+                  realm:(RLMRealm *)realm;
 
 /**
  *  Create a RBQSafeObject from a RLMObject

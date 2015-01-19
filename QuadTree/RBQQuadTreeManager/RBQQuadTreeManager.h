@@ -26,7 +26,32 @@
  */
 typedef void(^RBQDataReturnBlock)(RBQQuadTreeDataObject *data);
 
-extern NSString * NSStringFromQuadTreeIndexState(RBQQuadTreeIndexState state);
+/**
+ *  Convert a RBQQuadTreeIndexState into a NSString description
+ *
+ *  @param state A RBQQuadTreeIndexState state
+ *
+ *  @return NSString description
+ */
+extern NSString * RBQNSStringFromQuadTreeIndexState(RBQQuadTreeIndexState state);
+
+/**
+ *  Convert a MKZoomScale to zoom level (log function)
+ *
+ *  @param scale MKMapView's MKZoomScale
+ *
+ *  @return zoom level for the given MKZoomScale
+ */
+extern NSInteger RBQZoomScaleToZoomLevel(MKZoomScale scale);
+
+/**
+ *  Function to identify the cluster cell size for a given MKZoomScale
+ *
+ *  @param zoomScale MKMapView's MKZoomScale
+ *
+ *  @return Cluster cell size
+ */
+extern float RBQCellSizeForZoomScale(MKZoomScale zoomScale);
 
 /**
  *  Delegate methods to pass along the status of any indexing that is occurring in RBQQuadTreeManager
@@ -145,5 +170,12 @@ extern NSString * NSStringFromQuadTreeIndexState(RBQQuadTreeIndexState state);
  */
 - (void)retrieveDataInMapRect:(MKMapRect)mapRect
               dataReturnBlock:(RBQDataReturnBlock)block;
+
+- (NSSet *)clusteredAnnotationsWithinMapRect:(MKMapRect)rect
+                               withZoomScale:(MKZoomScale)zoomScale
+                                titleKeyPath:(NSString *)titleKeyPath
+                             subTitleKeyPath:(NSString *)subTitleKeyPath;
+
+- (void)displayAnnotations:(NSSet *)annotations onMapView:(MKMapView *)mapView;
 
 @end

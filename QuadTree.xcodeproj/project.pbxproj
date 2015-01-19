@@ -18,6 +18,8 @@
 		6617B2681A685BA700C63F59 /* RBQQuadTreeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6617B2671A685BA700C63F59 /* RBQQuadTreeManager.m */; };
 		6617B26B1A685C1C00C63F59 /* RBQIndexRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 6617B26A1A685C1C00C63F59 /* RBQIndexRequest.m */; };
 		6617B26E1A69ADC900C63F59 /* RBQQuadTreePropertiesObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 6617B26D1A69ADC900C63F59 /* RBQQuadTreePropertiesObject.m */; };
+		666625FB1A6C928600DC5849 /* TBClusterAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 666625F91A6C928600DC5849 /* TBClusterAnnotationView.m */; };
+		666625FE1A6C92BD00DC5849 /* RBQClusterAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 666625FD1A6C92BD00DC5849 /* RBQClusterAnnotation.m */; };
 		66DD1A991A44878300A09A53 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 66DD1A981A44878300A09A53 /* main.m */; };
 		66DD1A9C1A44878300A09A53 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 66DD1A9B1A44878300A09A53 /* AppDelegate.m */; };
 		66DD1A9F1A44878300A09A53 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 66DD1A9E1A44878300A09A53 /* ViewController.m */; };
@@ -64,6 +66,10 @@
 		6617B26A1A685C1C00C63F59 /* RBQIndexRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RBQIndexRequest.m; sourceTree = "<group>"; };
 		6617B26C1A69ADC900C63F59 /* RBQQuadTreePropertiesObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBQQuadTreePropertiesObject.h; sourceTree = "<group>"; };
 		6617B26D1A69ADC900C63F59 /* RBQQuadTreePropertiesObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RBQQuadTreePropertiesObject.m; sourceTree = "<group>"; };
+		666625F81A6C928600DC5849 /* TBClusterAnnotationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TBClusterAnnotationView.h; sourceTree = "<group>"; };
+		666625F91A6C928600DC5849 /* TBClusterAnnotationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TBClusterAnnotationView.m; sourceTree = "<group>"; };
+		666625FC1A6C92BD00DC5849 /* RBQClusterAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBQClusterAnnotation.h; sourceTree = "<group>"; };
+		666625FD1A6C92BD00DC5849 /* RBQClusterAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RBQClusterAnnotation.m; sourceTree = "<group>"; };
 		66DD1A931A44878300A09A53 /* QuadTree.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QuadTree.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		66DD1A971A44878300A09A53 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		66DD1A981A44878300A09A53 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -113,6 +119,7 @@
 		6617B24E1A685AE700C63F59 /* RBQQuadTreeManager */ = {
 			isa = PBXGroup;
 			children = (
+				666625F51A6C928600DC5849 /* Annotations */,
 				6617B24F1A685AE700C63F59 /* Helpers */,
 				6617B2501A685AE700C63F59 /* Models */,
 				6617B2661A685BA700C63F59 /* RBQQuadTreeManager.h */,
@@ -149,6 +156,17 @@
 				6617B26D1A69ADC900C63F59 /* RBQQuadTreePropertiesObject.m */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		666625F51A6C928600DC5849 /* Annotations */ = {
+			isa = PBXGroup;
+			children = (
+				666625F81A6C928600DC5849 /* TBClusterAnnotationView.h */,
+				666625F91A6C928600DC5849 /* TBClusterAnnotationView.m */,
+				666625FC1A6C92BD00DC5849 /* RBQClusterAnnotation.h */,
+				666625FD1A6C92BD00DC5849 /* RBQClusterAnnotation.m */,
+			);
+			path = Annotations;
 			sourceTree = "<group>";
 		};
 		66DD1A8A1A44878300A09A53 = {
@@ -419,9 +437,11 @@
 				6617B2601A685B6400C63F59 /* RBQRealmNotificationManager.m in Sources */,
 				6617B2581A685B4600C63F59 /* RBQQuadTreeDataObject.m in Sources */,
 				6617B26E1A69ADC900C63F59 /* RBQQuadTreePropertiesObject.m in Sources */,
+				666625FB1A6C928600DC5849 /* TBClusterAnnotationView.m in Sources */,
 				6617B26B1A685C1C00C63F59 /* RBQIndexRequest.m in Sources */,
 				66DD1ADA1A448FFA00A09A53 /* MapAnnotation.m in Sources */,
 				66DD1ABF1A44887F00A09A53 /* MapViewController.m in Sources */,
+				666625FE1A6C92BD00DC5849 /* RBQClusterAnnotation.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

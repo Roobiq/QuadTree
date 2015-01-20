@@ -2,14 +2,15 @@
 //  RBQQuadTreeDataObject.m
 //  QuadTree
 //
-//  Created by Adam Fish on 1/14/15.
+//  Created by Adam Fish on 1/19/15.
 //  Copyright (c) 2015 Roobiq. All rights reserved.
 //
 
 #import "RBQQuadTreeDataObject.h"
-#import "RLMObject+Utilities.h"
 
 @implementation RBQQuadTreeDataObject
+@synthesize latitude = _latitude,
+longitude = _longitude;
 
 #pragma mark - Public Class
 
@@ -17,144 +18,51 @@
                                    latitudeKeyPath:(NSString *)latitudeKeyPath
                                   longitudeKeyPath:(NSString *)longitudeKeyPath
 {
-#ifdef DEBUG
-    NSAssert(object, @"Object can't be nil");
-    NSAssert(latitudeKeyPath, @"Latitude key path can't be nil");
-    NSAssert(longitudeKeyPath, @"Longitude key path can't be nil");
-#endif
+    RBQSafeRealmObject *safeObject = [RBQQuadTreeDataObject safeObjectFromObject:object];
     
-    RBQQuadTreeDataObject *dataObject = [[RBQQuadTreeDataObject alloc] init];
-    dataObject.className = [RLMObject classNameForObject:object];
-    dataObject.primaryKeyType = object.objectSchema.primaryKeyProperty.type;
-    
-    id primaryKeyValue = [RLMObject primaryKeyValueForObject:object];
-    
-    if (dataObject.primaryKeyType == RLMPropertyTypeString) {
-        dataObject.primaryKeyStringValue = (NSString *)primaryKeyValue;
-    }
-    else {
-        dataObject.primaryKeyStringValue = @((NSInteger)primaryKeyValue).stringValue;
-    }
-    
-    // Get the lat/long
-    id latitude = [object valueForKeyPath:latitudeKeyPath];
-    id longitude = [object valueForKeyPath:longitudeKeyPath];
-
-#ifdef DEBUG
-    NSAssert(latitude, @"No value for latitude key path!");
-    NSAssert(longitude, @"No value for longitude key path!");
-#endif
-    
-    if (latitude &&
-        longitude) {
-        
-        dataObject.latitude = [latitude doubleValue];
-        dataObject.longitude = [longitude doubleValue];
-        
-        return dataObject;
-    }
-
-    return nil;
+    return [RBQQuadTreeDataObject createQuadTreeDataObjectWithSafeObject:safeObject
+                                                         latitudeKeyPath:latitudeKeyPath
+                                                        longitudeKeyPath:longitudeKeyPath];
 }
 
 + (instancetype)createQuadTreeDataObjectWithSafeObject:(RBQSafeRealmObject *)safeObject
                                        latitudeKeyPath:(NSString *)latitudeKeyPath
                                       longitudeKeyPath:(NSString *)longitudeKeyPath
 {
-    RBQQuadTreeDataObject *dataObject = [[RBQQuadTreeDataObject alloc] init];
-    dataObject.className = safeObject.className;
-    dataObject.primaryKeyType = safeObject.primaryKeyType;
+    RBQQuadTreeDataObject *data = [[RBQQuadTreeDataObject alloc] initWithClassName:safeObject.className
+                                                                   primaryKeyValue:safeObject.primaryKeyValue
+                                                                    primaryKeyType:safeObject.primaryKeyType
+                                                                             realm:safeObject.realm];
     
-    if (safeObject.primaryKeyType == RLMPropertyTypeString) {
-        dataObject.primaryKeyStringValue = (NSString *)safeObject.primaryKeyValue;
-    }
-    else {
-        dataObject.primaryKeyStringValue = @((NSInteger)safeObject.primaryKeyValue).stringValue;
-    }
+    RLMObject *object = [data RLMObject];
     
-    // Retrieve the object
-    RLMObject *object = [safeObject RLMObject];
+    CLLocationDegrees latitude = ((NSNumber *)[object valueForKeyPath:latitudeKeyPath]).doubleValue;
+    CLLocationDegrees longitude = ((NSNumber *)[object valueForKeyPath:longitudeKeyPath]).doubleValue;
     
-    // Get the lat/long
-    id latitude = [object valueForKeyPath:latitudeKeyPath];
-    id longitude = [object valueForKeyPath:longitudeKeyPath];
+    data->_latitude = latitude;
+    data->_longitude = longitude;
     
-#ifdef DEBUG
-    NSAssert(latitude, @"No value for latitude key path!");
-    NSAssert(longitude, @"No value for longitude key path!");
-#endif
-    
-    if (latitude &&
-        longitude) {
-        
-        dataObject.latitude = [latitude doubleValue];
-        dataObject.longitude = [longitude doubleValue];
-        
-        return dataObject;
-    }
-    
-    return nil;
+    return data;
 }
 
 + (instancetype)createQuadTreeDataObjectForClassName:(NSString *)className
-                               primaryKeyStringValue:(NSString *)primaryKeyStringValue
+                                             inRealm:(RLMRealm *)realm
+                                     primaryKeyValue:(id)primaryKeyValue
                                       primaryKeyType:(RLMPropertyType)primaryKeyType
-                                            latitude:(double)latitude
-                                           longitude:(double)longitude
+                                            latitude:(CLLocationDegrees)latitude
+                                           longitude:(CLLocationDegrees)longitude
 {
-    RBQQuadTreeDataObject *dataObject = [[RBQQuadTreeDataObject alloc] init];
-    dataObject.className = className;
-    dataObject.primaryKeyStringValue = primaryKeyStringValue;
-    dataObject.primaryKeyType = primaryKeyType;
-    dataObject.latitude = latitude;
-    dataObject.longitude = longitude;
+    RBQQuadTreeDataObject *data = [[RBQQuadTreeDataObject alloc] initWithClassName:className
+                                                                   primaryKeyValue:primaryKeyValue
+                                                                    primaryKeyType:primaryKeyType
+                                                                             realm:realm];
     
-    return dataObject;
-}
-
-#pragma mark - RLMObject
-
-// Specify default values for properties
-
-+ (NSDictionary *)defaultPropertyValues
-{
-    return @{@"className": @"",
-             @"primaryKeyStringValue" : @"",
-             @"primaryKeyType" : @(NSIntegerMin),
-             @"latitude" : @91,
-             @"longitude" : @181
-             };
-}
-
-// Specify properties to ignore (Realm won't persist these)
-
-+ (NSArray *)ignoredProperties
-{
-    return @[@"currentDistance",
-             @"coordinate"];
-}
-
-+ (NSString *)primaryKey
-{
-    return @"primaryKeyStringValue";
-}
-
-#pragma mark - Public Instance
-
-- (RBQSafeRealmObject *)originalSafeObject
-{
-    if (self.primaryKeyType == RLMPropertyTypeString) {
-        return [[RBQSafeRealmObject alloc] initWithClassName:self.className
-                                             primaryKeyValue:self.primaryKeyStringValue
-                                              primaryKeyType:self.primaryKeyType
-                                                       realm:self.realm];
-    }
+    data->_latitude = latitude;
+    data->_longitude = longitude;
     
-    return [[RBQSafeRealmObject alloc] initWithClassName:self.className
-                                         primaryKeyValue:@(self.primaryKeyStringValue.longLongValue)
-                                          primaryKeyType:self.primaryKeyType
-                                                   realm:self.realm];
+    return data;
 }
+
 
 #pragma mark - Getters
 
@@ -170,55 +78,40 @@
     }
 }
 
-- (NSArray *)nodes
-{
-   return [self linkingObjectsOfClass:@"RBQQuadTreeNodeObject" forProperty:@"points"]; 
-}
-
-#pragma mark - Equality
-
-//- (BOOL)isEqualToObject:(RBQQuadTreeDataObject *)object
-//{
-//    if (self.primaryKeyType == RLMPropertyTypeString &&
-//        object.primaryKeyType == RLMPropertyTypeString) {
-//        
-//        return [self.primaryKeyStringValue isEqualToString:object.primaryKeyStringValue];
-//    }
-//    else if (self.primaryKeyType == RLMPropertyTypeInt &&
-//             object.primaryKeyType == RLMPropertyTypeInt) {
-//        
-//        return self.primaryKeyStringValue.integerValue == object.primaryKeyStringValue.integerValue;
-//    }
-//    else {
-//        return [super isEqual:object];
-//    }
-//}
-
-- (BOOL)isEqual:(id)object
-{
-    NSString *className = NSStringFromClass(self.class);
-    
-    if ([className hasPrefix:@"RLMStandalone_"]) {
-        return [self isEqualToObject:object];
-    }
-    else {
-        return [super isEqual:object];
-    }
-}
-
 #pragma mark - <NSCopying>
 
 - (id)copyWithZone:(NSZone *)zone
 {
-    RBQQuadTreeDataObject *dataObject = [[RBQQuadTreeDataObject allocWithZone:zone] init];
-    dataObject.className = self.className;
-    dataObject.primaryKeyStringValue = self.primaryKeyStringValue;
-    dataObject.primaryKeyType = self.primaryKeyType;
-    dataObject.latitude = self.latitude;
-    dataObject.longitude = self.longitude;
+    RBQQuadTreeDataObject *data = [super copyWithZone:zone];
     
-    return dataObject;
+    data->_latitude = _latitude;
+    data->_longitude = _longitude;
+    data->_node = _node;
     
+    return data;
 }
+
+#pragma mark - <NSCoding>
+
+- (id)initWithCoder:(NSCoder *)decoder {
+    self = [super initWithCoder:decoder];
+    if (self) {
+        self->_latitude = [decoder decodeDoubleForKey:@"latitude"];
+        self->_latitude = [decoder decodeDoubleForKey:@"longitude"];
+        self->_node = [decoder decodeObjectForKey:@"node"];
+    }
+    
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeDouble:self.latitude forKey:@"latitude"];
+    [encoder encodeDouble:self.longitude forKey:@"longitude"];
+    
+    if (self.node) {
+        [encoder encodeObject:self.node forKey:@"node"];
+    }
+}
+
 
 @end

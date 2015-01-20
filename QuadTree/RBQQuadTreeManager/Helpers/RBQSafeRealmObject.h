@@ -14,7 +14,7 @@
  
     @warning RBQSafeRealmObjects can only be created from RLMObjects that contain a primary key. Attempting to create a RBQSafeRealmObject without a primary key will result in an exception.
  */
-@interface RBQSafeRealmObject : NSObject <NSCopying>
+@interface RBQSafeRealmObject : NSObject <NSCopying, NSCoding>
 
 /**
  *  Original RLMObject's class name

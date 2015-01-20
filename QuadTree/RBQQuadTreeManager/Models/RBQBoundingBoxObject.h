@@ -2,12 +2,13 @@
 //  RBQBoundingBoxObject.h
 //  QuadTree
 //
-//  Created by Adam Fish on 1/14/15.
+//  Created by Adam Fish on 1/19/15.
 //  Copyright (c) 2015 Roobiq. All rights reserved.
 //
 
-#import <Realm/Realm.h>
+#import <Foundation/Foundation.h>
 #import "RBQQuadTreeDataObject.h"
+#import <MapKit/MapKit.h>
 
 @class RBQBoundingBoxObject, RBQQuadTreeDataObject;
 
@@ -56,39 +57,39 @@ RBQBoundingBoxObject* boundingBoxForMapRect(MKMapRect mapRect);
 /**
  *  Class used by RBQQuadTreeManager that represents a bounding box within the quad tree data structure.
  
-    @warning *Important:* This class should not be used by itself and is used internally be the RBQQuadTreeManager.
+ @warning *Important:* This class should not be used by itself and is used internally be the RBQQuadTreeManager.
  */
-@interface RBQBoundingBoxObject : RLMObject
+@interface RBQBoundingBoxObject : NSObject <NSCopying, NSCoding>
 
 /**
  *  Unique key used to identify the bounding box.
  */
-@property NSString *key;
+@property (nonatomic, readonly) NSString *key;
 
 /**
  *  X origin
  */
-@property double x;
+@property (nonatomic, readonly) double x;
 
 /**
  *  Y origin
  */
-@property double y;
+@property (nonatomic, readonly) double y;
 
 /**
  *  Height of the bounding box
  */
-@property double height;
+@property (nonatomic, readonly) double height;
 
 /**
  *  Width of the bounding box
  */
-@property double width;
+@property (nonatomic, readonly) double width;
 
 /**
  *  Constructor class method to create a RBQBoundingBoxObject from a given set of property values.
  
-    @warning *Important:* This is the recommended way to construct a RBQBoundingBoxObject.
+ @warning *Important:* This is the recommended way to construct a RBQBoundingBoxObject.
  *
  *  @param x      x origin value of box
  *  @param y      y origin value of box
@@ -103,8 +104,3 @@ RBQBoundingBoxObject* boundingBoxForMapRect(MKMapRect mapRect);
                                           height:(double)height;
 
 @end
-
-// This protocol enables typed collections. i.e.:
-// RLMArray<RBQBoundingBoxObject>
-RLM_ARRAY_TYPE(RBQBoundingBoxObject)
-

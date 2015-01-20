@@ -15,7 +15,7 @@
 #import "RBQQuadTreeDataObject.h"
 #import "RBQQuadTreeNodeObject.h"
 #import "RBQBoundingBoxObject.h"
-#import "RBQQuadTreePropertiesObject.h"
+#import "RBQQuadTreeIndexObject.h"
 
 @class RBQQuadTreeManager;
 
@@ -25,15 +25,6 @@
  *  @param data RBQQuadTreeDataObject that matched the given query.
  */
 typedef void(^RBQDataReturnBlock)(RBQQuadTreeDataObject *data);
-
-/**
- *  Convert a RBQQuadTreeIndexState into a NSString description
- *
- *  @param state A RBQQuadTreeIndexState state
- *
- *  @return NSString description
- */
-extern NSString * RBQNSStringFromQuadTreeIndexState(RBQQuadTreeIndexState state);
 
 /**
  *  Convert a MKZoomScale to zoom level (log function)
@@ -131,18 +122,18 @@ extern float RBQCellSizeForZoomScale(MKZoomScale zoomScale);
 + (void)stopOnDemandIndexingForIndexRequest:(RBQIndexRequest *)indexRequest;
 
 /**
- *  Add a RLMObject to the quad tree index. The process works by immediately persisting the object and then asynchronously indexing the object.
+ *  Add a RLMObject to the quad tree index.
  *
  *  @param object RLMObject to be indexed
-    @warning *Important:* The class name for the RLMObject must match the entity name for the RBQQuadTreeManager. Others will be silently ignored.
+    @warning *Important:* The class name for the RLMObject must match the entity name for the RBQQuadTreeManager.
  */
 - (void)insertObject:(RLMObject *)object;
 
 /**
- *  Add a collection of RLMObject's to the quad tree index
+ *  Add a collection of RLMObjects to the quad tree index
  *
  *  @param object Collection of RLMObjects that conforms to NSFastEnumeration
-    @warning *Important:* The class name for all of the RLMObjects must match the entity name for the RBQQuadTreeManager. Others will be silently ignored.
+    @warning *Important:* The class name for all of the RLMObjects must match the entity name for the RBQQuadTreeManager.
  */
 - (void)insertObjects:(id<NSFastEnumeration>)objects;
 
@@ -150,15 +141,15 @@ extern float RBQCellSizeForZoomScale(MKZoomScale zoomScale);
  *  Remove a RLMObject from the quad tree index
  *
  *  @param object RLMObject to be removed from the index
-    @warning *Important:* The class name for the RLMObject must match the entity name for the RBQQuadTreeManager. Others will be silently ignored.
+    @warning *Important:* The class name for the RLMObject must match the entity name for the RBQQuadTreeManager.
  */
 - (void)removeObject:(RLMObject *)object;
 
 /**
- *  Remove a collection of RLMObjects' from the quad tree index
+ *  Remove a collection of RLMObjects from the quad tree index
  *
  *  @param objects Collection of RLMObjects that conforms to NSFastEnumeration
- @warning *Important:* The class name for all of the RLMObjects must match the entity name for the RBQQuadTreeManager. Others will be silently ignored.
+ @warning *Important:* The class name for all of the RLMObjects must match the entity name for the RBQQuadTreeManager.
  */
 - (void)removeObjects:(id<NSFastEnumeration>)objects;
 

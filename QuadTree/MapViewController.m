@@ -79,10 +79,12 @@ NSString *kRBQAnnotationViewReuseID = @"RBQAnnotationViewReuseID";
     [[NSOperationQueue new] addOperationWithBlock:^{
         double scale = self.mapView.bounds.size.width / self.mapView.visibleMapRect.size.width;
         RBQQuadTreeManager *manager = [RBQQuadTreeManager managerForIndexRequest:self.indexRequest];
+        NSLog(@"Started Getting Clusters");
         NSSet *annotations = [manager clusteredAnnotationsWithinMapRect:mapView.visibleMapRect
                                                           withZoomScale:scale
                                                            titleKeyPath:@"name"
                                                         subTitleKeyPath:nil];
+        NSLog(@"Finished Getting Clusters");
         
         
         [manager displayAnnotations:annotations
@@ -210,7 +212,7 @@ didFailToLocateUserWithError:(NSError *)error
 {
     self.progressView.hidden = NO;
     
-    self.progressLabel.text = RBQNSStringFromQuadTreeIndexState(state);
+    self.progressLabel.text = RBQStringFromQuadTreeIndexState(state);
     
     self.progressView.progress = 0.f;
     
@@ -221,7 +223,7 @@ didFailToLocateUserWithError:(NSError *)error
 {
     self.progressView.hidden = NO;
     
-    self.progressLabel.text = RBQNSStringFromQuadTreeIndexState(state);
+    self.progressLabel.text = RBQStringFromQuadTreeIndexState(state);
     
     self.progressView.progress = percentIndexed;
 }
@@ -231,7 +233,7 @@ didFailToLocateUserWithError:(NSError *)error
 {
     self.progressView.hidden = YES;
     
-    self.progressLabel.text = RBQNSStringFromQuadTreeIndexState(state);
+    self.progressLabel.text = RBQStringFromQuadTreeIndexState(state);
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self animateNotificationView:NO];

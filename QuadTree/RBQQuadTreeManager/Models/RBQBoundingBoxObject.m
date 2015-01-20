@@ -2,11 +2,13 @@
 //  RBQBoundingBoxObject.m
 //  QuadTree
 //
-//  Created by Adam Fish on 1/14/15.
+//  Created by Adam Fish on 1/19/15.
 //  Copyright (c) 2015 Roobiq. All rights reserved.
 //
 
 #import "RBQBoundingBoxObject.h"
+
+#pragma mark - Functions
 
 BOOL boundingBoxContainsData(RBQBoundingBoxObject *box, RBQQuadTreeDataObject *data)
 {
@@ -49,24 +51,18 @@ RBQBoundingBoxObject* boundingBoxForMapRect(MKMapRect mapRect)
 #pragma mark - Public Class
 
 + (RBQBoundingBoxObject *)createBoundingBoxWithX:(double)x
-                                      y:(double)y
-                                  width:(double)width
-                                 height:(double)height {
+                                               y:(double)y
+                                           width:(double)width
+                                          height:(double)height {
     
     RBQBoundingBoxObject *box = [[RBQBoundingBoxObject alloc] init];
-    box.height = height;
-    box.width = width;
-    box.x = x;
-    box.y = y;
-    box.key = [NSString stringWithFormat:@"%f%f%f%f",x,y,width,height];
+    box->_height = height;
+    box->_width = width;
+    box->_x = x;
+    box->_y = y;
+    box->_key = [NSString stringWithFormat:@"%f%f%f%f",x,y,width,height];
     
     return box;
-}
-
-#pragma mark - RLMObject
-// Set the primary key
-+ (NSString *)primaryKey {
-    return @"key";
 }
 
 #pragma mark - Equality
@@ -85,16 +81,44 @@ RBQBoundingBoxObject* boundingBoxForMapRect(MKMapRect mapRect)
 
 - (BOOL)isEqual:(id)object
 {
-    NSString *className = NSStringFromClass(self.class);
-    
-    if ([className hasPrefix:@"RLMStandalone_"]) {
-        return [self isEqualToObject:object];
-    }
-    else {
-        return [super isEqual:object];
-    }
+    return [self isEqualToObject:object];
 }
 
+#pragma mark - <NSCopying>
 
+- (id)copyWithZone:(NSZone *)zone
+{
+    RBQBoundingBoxObject *box = [[RBQBoundingBoxObject allocWithZone:zone] init];
+    box->_height = self.height;
+    box->_width = self.width;
+    box->_x = self.x;
+    box->_y = self.y;
+    box->_key = self.key;
+    
+    return box;
+}
+
+#pragma mark - <NSCoding>
+
+- (id)initWithCoder:(NSCoder *)decoder {
+    self = [super init];
+    if (self) {
+        self->_key = [decoder decodeObjectForKey:@"key"];
+        self->_x = [decoder decodeDoubleForKey:@"x"];
+        self->_y = [decoder decodeDoubleForKey:@"y"];
+        self->_width = [decoder decodeDoubleForKey:@"width"];
+        self->_height = [decoder decodeDoubleForKey:@"height"];
+    }
+    
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:self.key forKey:@"key"];
+    [encoder encodeDouble:self.x forKey:@"x"];
+    [encoder encodeDouble:self.y forKey:@"y"];
+    [encoder encodeDouble:self.width forKey:@"width"];
+    [encoder encodeDouble:self.height forKey:@"height"];
+}
 
 @end

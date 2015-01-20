@@ -89,7 +89,7 @@ primaryKeyValue = _primaryKeyValue;
         return YES;
     }
     
-    if (_primaryKeyType == RLMPropertyTypeString) {
+    if (self.primaryKeyType == RLMPropertyTypeString) {
         return [self.primaryKeyValue isEqualToString:object.primaryKeyValue];
     }
     
@@ -98,7 +98,7 @@ primaryKeyValue = _primaryKeyValue;
 
 - (BOOL)isEqual:(id)object
 {
-    if (_primaryKeyValue) {
+    if (self.primaryKeyValue) {
         return [self isEqualToObject:object];
     }
     else {
@@ -108,9 +108,8 @@ primaryKeyValue = _primaryKeyValue;
 
 - (NSUInteger)hash
 {
-    if (_primaryKeyValue) {
-        // modify the hash of our primary key value to avoid potential (although unlikely) collisions
-        return [_primaryKeyValue hash] ^ 1;
+    if (self.primaryKeyValue) {
+        return [self.primaryKeyValue hash];
     }
     else {
         return [super hash];
@@ -128,6 +127,27 @@ primaryKeyValue = _primaryKeyValue;
     safeObject->_realmPath = _realmPath;
     
     return safeObject;
+}
+
+#pragma mark - <NSCoding>
+
+- (id)initWithCoder:(NSCoder *)decoder {
+    self = [super init];
+    if (self) {
+        self->_className = [decoder decodeObjectForKey:@"className"];
+        self->_primaryKeyValue = [decoder decodeObjectForKey:@"primaryKeyValue"];
+        self->_primaryKeyType = [decoder decodeInt32ForKey:@"primaryKeyType"];
+        self->_realmPath = [decoder decodeObjectForKey:@"realmPath"];
+    }
+    
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:self.className forKey:@"className"];
+    [encoder encodeObject:self.primaryKeyValue forKey:@"primaryKeyValue"];
+    [encoder encodeInt32:self.primaryKeyType forKey:@"primaryKeyType"];
+    [encoder encodeObject:self.realmPath forKey:@"realmPath"];
 }
 
 @end

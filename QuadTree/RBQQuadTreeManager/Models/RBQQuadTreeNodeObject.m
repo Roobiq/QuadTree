@@ -2,7 +2,7 @@
 //  RBQQuadTreeNodeObject.m
 //  QuadTree
 //
-//  Created by Adam Fish on 1/14/15.
+//  Created by Adam Fish on 1/19/15.
 //  Copyright (c) 2015 Roobiq. All rights reserved.
 //
 
@@ -10,23 +10,18 @@
 
 @implementation RBQQuadTreeNodeObject
 
-#pragma mark - Class
+#pragma mark - Public Class
 
 + (instancetype)createQuadTreeNodeWithBox:(RBQBoundingBoxObject *)box
                            bucketCapacity:(int)capacity
 {
     RBQQuadTreeNodeObject *node = [[RBQQuadTreeNodeObject alloc] init];
-    node.boundingBox = box;
-    node.bucketCapacity = capacity;
-    node.key = box.key;
+    node->_points = [[RBQSafeMutableSet alloc] init];
+    node->_boundingBox = box;
+    node->_bucketCapacity = capacity;
+    node->_key = box.key;
     
     return node;
-}
-
-#pragma mark - RLMObject
-
-+ (NSString *)primaryKey {
-    return @"key";
 }
 
 #pragma mark - Equality
@@ -45,14 +40,66 @@
 
 - (BOOL)isEqual:(id)object
 {
-    NSString *className = NSStringFromClass(self.class);
+    return [self isEqualToObject:object];
+}
+
+#pragma mark - <NSCopying>
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    RBQQuadTreeNodeObject *node = [[RBQQuadTreeNodeObject allocWithZone:zone] init];
     
-    if ([className hasPrefix:@"RLMStandalone_"]) {
-        return [self isEqualToObject:object];
+    node->_northWest = self.northWest;
+    node->_northEast = self.northEast;
+    node->_southWest = self.southWest;
+    node->_southEast = self.southEast;
+    node->_points = self.points;
+    node->_boundingBox = self.boundingBox;
+    node->_bucketCapacity = self.bucketCapacity;
+    node->_key = self.key;
+    
+    return node;
+}
+
+#pragma mark - <NSCoding>
+
+- (id)initWithCoder:(NSCoder *)decoder {
+    self = [super init];
+    if (self) {
+        self->_northWest = [decoder decodeObjectForKey:@"northWest"];
+        self->_northEast = [decoder decodeObjectForKey:@"northEast"];
+        self->_southWest = [decoder decodeObjectForKey:@"southWest"];
+        self->_southEast = [decoder decodeObjectForKey:@"southEast"];
+        self->_points = [decoder decodeObjectForKey:@"points"];
+        self->_boundingBox = [decoder decodeObjectForKey:@"boundingBox"];
+        self->_bucketCapacity = [decoder decodeIntForKey:@"bucketCapacity"];
+        self->_key = [decoder decodeObjectForKey:@"key"];
     }
-    else {
-        return [super isEqual:object];
+    
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    if (self.northWest) {
+        [encoder encodeObject:self.northWest forKey:@"northWest"];
     }
+    
+    if (self.northEast) {
+        [encoder encodeObject:self.northEast forKey:@"northEast"];
+    }
+    
+    if (self.southWest) {
+        [encoder encodeObject:self.southWest forKey:@"southWest"];
+    }
+    
+    if (self.southEast) {
+        [encoder encodeObject:self.southEast forKey:@"southEast"];
+    }
+
+    [encoder encodeObject:self.boundingBox forKey:@"boundingBox"];
+    [encoder encodeObject:self.points forKey:@"points"];
+    [encoder encodeInt:self.bucketCapacity forKey:@"bucketCapacity"];
+    [encoder encodeObject:self.key forKey:@"key"];
 }
 
 @end

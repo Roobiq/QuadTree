@@ -77,15 +77,44 @@ NSString *kRBQAnnotationViewReuseID = @"RBQAnnotationViewReuseID";
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
 {
     [[NSOperationQueue new] addOperationWithBlock:^{
-        double scale = self.mapView.bounds.size.width / self.mapView.visibleMapRect.size.width;
         RBQQuadTreeManager *manager = [RBQQuadTreeManager managerForIndexRequest:self.indexRequest];
-        NSSet *annotations = [manager clusteredAnnotationsWithinMapRect:mapView.visibleMapRect
-                                                          withZoomScale:scale
-                                                           titleKeyPath:@"name"
-                                                        subTitleKeyPath:nil];
+        
+        // First get the RLMResults for the data
+        NSLog(@"Started Doing Basic Query");
+        RLMResults *results = [manager retrieveDataInMapRect:mapView.visibleMapRect];
+        NSLog(@"Finished Doing Basic Query");
         
         
-        [manager displayAnnotations:annotations
+        // Now do the quad tree query
+        NSMutableSet *quadTreeResults = [[NSMutableSet alloc] init];
+        
+        NSLog(@"Started Doing Quad Tree Query");
+        [manager retrieveDataInMapRect:mapView.visibleMapRect
+                       dataReturnBlock:^(RBQQuadTreeDataObject *data) {
+                           
+                           [quadTreeResults addObject:data];
+                       }];
+        NSLog(@"Finished Doing Quad Tree Query");
+        
+        double scale = self.mapView.bounds.size.width / self.mapView.visibleMapRect.size.width;
+        
+//        NSLog(@"Started Cluster Query");
+//        NSSet *annotations = [manager clusteredAnnotationsWithinMapRect:mapView.visibleMapRect
+//                                                          withZoomScale:scale
+//                                                           titleKeyPath:@"name"
+//                                                        subTitleKeyPath:nil];
+//        NSLog(@"Finished Cluster Query");
+        
+        NSLog(@"Started Cluster Query Realm");
+        NSSet *annotationsRealm = [manager clusteredAnnotationsWithinMapRectRealm:mapView.visibleMapRect
+                                                                    withZoomScale:scale
+                                                                     titleKeyPath:@"name"
+                                                                  subTitleKeyPath:nil];
+        NSLog(@"Finished Cluster Query Realm");
+        
+        NSLog(@"Basic Results Count: %d\nQuad Tree Results Count: %d",results.count, quadTreeResults.count);
+        
+        [manager displayAnnotations:annotationsRealm
                           onMapView:mapView];
     }];
 }

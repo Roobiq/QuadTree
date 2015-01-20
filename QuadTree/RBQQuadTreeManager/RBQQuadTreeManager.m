@@ -188,8 +188,9 @@ indexRequest = _indexRequest;
             [manager rebuildIndex];
         }
         // The loading of data failed to complete, restart it from scratch and then index
-        else if (properties.quadTreeIndexState == RBQQuadTreeIndexStatePreparingData ||
-                 dataCount != mainDataCount) {
+//        else if (properties.quadTreeIndexState == RBQQuadTreeIndexStatePreparingData ||
+//                 dataCount != mainDataCount) {
+        else if (properties.quadTreeIndexState == RBQQuadTreeIndexStatePreparingData) {
             
             [manager reloadAllDataAndIndex];
         }
@@ -250,6 +251,85 @@ indexRequest = _indexRequest;
                       dataReturnBlock:block];
 }
 
+- (RLMResults *)retrieveDataInMapRect:(MKMapRect)mapRect
+{
+    RBQBoundingBoxObject *boundingBox = boundingBoxForMapRect(mapRect);
+    
+    NSPredicate *containsX = [NSPredicate predicateWithFormat:@"%K >= %f AND %K <= %f",
+                              @"latitude",
+                              boundingBox.x,
+                              @"latitude",
+                              boundingBox.width];
+    
+    NSPredicate *containsY = [NSPredicate predicateWithFormat:@"%K >= %f AND %K <= %f",
+                              @"longitude",
+                              boundingBox.y,
+                              @"longitude",
+                              boundingBox.height];
+    
+    NSCompoundPredicate *finalPredicate = [NSCompoundPredicate andPredicateWithSubpredicates:@[containsX,containsY]];
+    
+    RLMResults *data = [RBQQuadTreeDataObject objectsInRealm:[self currentRealmIndex] withPredicate:finalPredicate];
+    
+    return data;
+}
+
+- (NSSet *)clusteredAnnotationsWithinMapRectRealm:(MKMapRect)rect
+                                    withZoomScale:(MKZoomScale)zoomScale
+                                     titleKeyPath:(NSString *)titleKeyPath
+                                  subTitleKeyPath:(NSString *)subTitleKeyPath
+{
+    double RBQCellSize = RBQCellSizeForZoomScale(zoomScale);
+    double scaleFactor = zoomScale / RBQCellSize;
+    
+    NSInteger minX = floor(MKMapRectGetMinX(rect) * scaleFactor);
+    NSInteger maxX = floor(MKMapRectGetMaxX(rect) * scaleFactor);
+    NSInteger minY = floor(MKMapRectGetMinY(rect) * scaleFactor);
+    NSInteger maxY = floor(MKMapRectGetMaxY(rect) * scaleFactor);
+    
+    NSUInteger queries = 0;
+    
+    NSMutableSet *clusteredAnnotations = [[NSMutableSet alloc] init];
+    for (NSInteger x = minX; x <= maxX; x++) {
+        for (NSInteger y = minY; y <= maxY; y++) {
+            @autoreleasepool {
+                MKMapRect mapRect = MKMapRectMake(x / scaleFactor, y / scaleFactor, 1.0 / scaleFactor, 1.0 / scaleFactor);
+                
+                __block double totalLat = 0;
+                __block double totalLon = 0;
+                __block int count = 0;
+                
+                RBQClusterAnnotation *annotation = [[RBQClusterAnnotation alloc] initWithTitleKeyPath:titleKeyPath
+                                                                                      subTitleKeyPath:subTitleKeyPath];
+                queries ++;
+                
+                RLMResults *clusterResults = [self retrieveDataInMapRect:mapRect];
+                
+                for (RBQQuadTreeDataObject *data in clusterResults) {
+                    totalLat += data.latitude;
+                    totalLon += data.longitude;
+                    count++;
+                    
+                    [annotation addSafeObjectToCluster:[data originalSafeObject]];
+                }
+                
+                if (count == 1) {
+                    annotation.coordinate = CLLocationCoordinate2DMake(totalLat, totalLon);
+                }
+                else if (count > 1) {
+                    annotation.coordinate = CLLocationCoordinate2DMake(totalLat / count, totalLon / count);
+                }
+                
+                [clusteredAnnotations addObject:annotation];
+            }
+        }
+    }
+    
+    NSLog(@"Performed %d queries", queries);
+    
+    return clusteredAnnotations.copy;
+}
+
 - (NSSet *)clusteredAnnotationsWithinMapRect:(MKMapRect)rect
                                withZoomScale:(MKZoomScale)zoomScale
                                 titleKeyPath:(NSString *)titleKeyPath
@@ -263,6 +343,8 @@ indexRequest = _indexRequest;
     NSInteger minY = floor(MKMapRectGetMinY(rect) * scaleFactor);
     NSInteger maxY = floor(MKMapRectGetMaxY(rect) * scaleFactor);
     
+    NSUInteger quadTreeQueries = 0;
+    
     NSMutableSet *clusteredAnnotations = [[NSMutableSet alloc] init];
     for (NSInteger x = minX; x <= maxX; x++) {
         for (NSInteger y = minY; y <= maxY; y++) {
@@ -274,6 +356,8 @@ indexRequest = _indexRequest;
             
             RBQClusterAnnotation *annotation = [[RBQClusterAnnotation alloc] initWithTitleKeyPath:titleKeyPath
                                                                                   subTitleKeyPath:subTitleKeyPath];
+            
+            quadTreeQueries ++;
             
             [self retrieveDataInMapRect:mapRect dataReturnBlock:^(RBQQuadTreeDataObject *data) {
                 totalLat += data.latitude;
@@ -294,12 +378,18 @@ indexRequest = _indexRequest;
         }
     }
     
+    NSLog(@"Performed %d quad tree queries", quadTreeQueries);
+    
     return clusteredAnnotations.copy;
 }
 
 - (void)displayAnnotations:(NSSet *)annotations onMapView:(MKMapView *)mapView
 {
-    NSMutableSet *before = [NSMutableSet setWithArray:mapView.annotations];
+    NSMutableSet *before;
+    if (mapView.annotations) {
+        before = [NSMutableSet setWithArray:mapView.annotations];
+    }
+    
     [before removeObject:[mapView userLocation]];
     NSSet *after = [NSSet setWithSet:annotations];
     

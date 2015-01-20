@@ -171,10 +171,17 @@ extern float RBQCellSizeForZoomScale(MKZoomScale zoomScale);
 - (void)retrieveDataInMapRect:(MKMapRect)mapRect
               dataReturnBlock:(RBQDataReturnBlock)block;
 
+- (RLMResults *)retrieveDataInMapRect:(MKMapRect)mapRect;
+
 - (NSSet *)clusteredAnnotationsWithinMapRect:(MKMapRect)rect
                                withZoomScale:(MKZoomScale)zoomScale
                                 titleKeyPath:(NSString *)titleKeyPath
                              subTitleKeyPath:(NSString *)subTitleKeyPath;
+
+- (NSSet *)clusteredAnnotationsWithinMapRectRealm:(MKMapRect)rect
+                                    withZoomScale:(MKZoomScale)zoomScale
+                                     titleKeyPath:(NSString *)titleKeyPath
+                                  subTitleKeyPath:(NSString *)subTitleKeyPath;
 
 - (void)displayAnnotations:(NSSet *)annotations onMapView:(MKMapView *)mapView;
 

@@ -32,12 +32,10 @@ primaryKeyValue = _primaryKeyValue;
     
     RLMProperty *primaryKeyProperty = object.objectSchema.primaryKeyProperty;
     
-    RBQSafeRealmObject *safeObject = [[RBQSafeRealmObject alloc] initWithClassName:className
-                                                                   primaryKeyValue:value
-                                                                    primaryKeyType:primaryKeyProperty.type
-                                                                             realm:object.realm];
-    
-    return safeObject;
+    return [[self alloc] initWithClassName:className
+                           primaryKeyValue:value
+                            primaryKeyType:primaryKeyProperty.type
+                                     realm:object.realm];
 }
 
 + (RLMObject *)objectfromSafeObject:(RBQSafeRealmObject *)safeObject

@@ -11,23 +11,52 @@
 #import "RBQClusterAnnotation.h"
 #import "TBClusterAnnotationView.h"
 #import "TestDataObject.h"
-
-#import "RBQQuadTreeManager.h"
+#import "RBQSafeLocationObject.h"
 
 #import <MapKit/MapKit.h>
 
 NSString *kRBQAnnotationViewReuseID = @"RBQAnnotationViewReuseID";
 
-@interface MapViewController () <MKMapViewDelegate, RBQQuadTreeManagerDelegate>
+NSInteger RBQZoomScaleToZoomLevel(MKZoomScale scale)
+{
+    double totalTilesAtMaxZoom = MKMapSizeWorld.width / 256.0;
+    NSInteger zoomLevelAtMaxZoom = log2(totalTilesAtMaxZoom);
+    NSInteger zoomLevel = MAX(0, zoomLevelAtMaxZoom + floor(log2f(scale) + 0.5));
+    
+    return zoomLevel;
+}
+
+float RBQCellSizeForZoomScale(MKZoomScale zoomScale)
+{
+    NSInteger zoomLevel = RBQZoomScaleToZoomLevel(zoomScale);
+    
+    switch (zoomLevel) {
+        case 13:
+        case 14:
+        case 15:
+        return 64;
+        case 16:
+        case 17:
+        case 18:
+        return 32;
+        case 19:
+        return 16;
+        default:
+        return 88;
+    }
+}
+
+@interface MapViewController () <MKMapViewDelegate>
 
 @property (strong, nonatomic) IBOutlet MKMapView *mapView;
 @property (assign, nonatomic) BOOL didSetUserLocation;
 @property (strong, nonatomic) IBOutlet UIProgressView *progressView;
-@property (strong, nonatomic) RBQIndexRequest *indexRequest;
 @property (strong, nonatomic) IBOutlet UIView *notificationView;
 @property (strong, nonatomic) IBOutlet NSLayoutConstraint *notificationViewTopConstraint;
 @property (strong, nonatomic) IBOutlet UILabel *progressLabel;
 @property (strong, nonatomic) IBOutlet NSLayoutConstraint *backButtonTopConstraint;
+
+@property (strong, nonatomic) NSOperationQueue *queryQueue;
 
 @end
 
@@ -36,18 +65,9 @@ NSString *kRBQAnnotationViewReuseID = @"RBQAnnotationViewReuseID";
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    // Do any additional setup after loading the view from its nib.
-    self.indexRequest = [RBQIndexRequest createIndexRequestWithEntityName:@"TestDataObject"
-                                                                  inRealm:[RLMRealm defaultRealm]
-                                                          latitudeKeyPath:@"latitude"
-                                                         longitudeKeyPath:@"longitude"];
     
-    RBQQuadTreeManager *manager = [RBQQuadTreeManager managerForIndexRequest:self.indexRequest];
-    manager.delegate = self;
-    
-    if (manager.isIndexing) {
-        [self animateNotificationView:YES];
-    }
+    self.queryQueue = [[NSOperationQueue alloc] init];
+    self.queryQueue.maxConcurrentOperationCount = 1;
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -77,8 +97,9 @@ NSString *kRBQAnnotationViewReuseID = @"RBQAnnotationViewReuseID";
 
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
 {
-    [[NSOperationQueue new] addOperationWithBlock:^{
-        RBQQuadTreeManager *manager = [RBQQuadTreeManager managerForIndexRequest:self.indexRequest];
+    [self.queryQueue cancelAllOperations];
+    
+    [self.queryQueue addOperationWithBlock:^{
         
         // First get the RLMResults for the data
         NSLog(@"Started Doing Basic Query");
@@ -93,8 +114,8 @@ NSString *kRBQAnnotationViewReuseID = @"RBQAnnotationViewReuseID";
                                                   withZoomScale:scale];
         NSLog(@"Finished Doing Clustering");
         
-        [manager displayAnnotations:annotations
-                          onMapView:mapView];
+        [self displayAnnotations:annotations
+                       onMapView:mapView];
     }];
 }
 
@@ -138,41 +159,32 @@ didFailToLocateUserWithError:(NSError *)error
     DDLogInfo(@"%@", error.localizedDescription);
 }
 
-#pragma mark - RBQQuadTreeManagerDelegate
-
-- (void)managerWillBeginIndexing:(RBQQuadTreeManager *)manager currentState:(RBQQuadTreeIndexState)state
-{
-    self.progressView.hidden = NO;
-    
-    self.progressLabel.text = RBQNSStringFromQuadTreeIndexState(state);
-    
-    self.progressView.progress = 0.f;
-    
-    [self animateNotificationView:YES];
-}
-
-- (void)managerDidUpdate:(RBQQuadTreeManager *)manager currentState:(RBQQuadTreeIndexState)state percentIndexed:(CGFloat)percentIndexed
-{
-    self.progressView.hidden = NO;
-    
-    self.progressLabel.text = RBQNSStringFromQuadTreeIndexState(state);
-    
-    self.progressView.progress = percentIndexed;
-}
-
-- (void)managerDidEndIndexing:(RBQQuadTreeManager *)manager
-                 currentState:(RBQQuadTreeIndexState)state
-{
-    self.progressView.hidden = YES;
-    
-    self.progressLabel.text = RBQNSStringFromQuadTreeIndexState(state);
-    
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [self animateNotificationView:NO];
-    });
-}
-
 #pragma mark - Private
+
+- (void)displayAnnotations:(NSSet *)annotations onMapView:(MKMapView *)mapView
+{
+    NSMutableSet *before;
+    if (mapView.annotations) {
+        before = [NSMutableSet setWithArray:mapView.annotations];
+    }
+    
+    [before removeObject:[mapView userLocation]];
+    NSSet *after = [NSSet setWithSet:annotations];
+    
+    NSMutableSet *toKeep = [NSMutableSet setWithSet:before];
+    [toKeep intersectSet:after];
+    
+    NSMutableSet *toAdd = [NSMutableSet setWithSet:after];
+    [toAdd minusSet:toKeep];
+    
+    NSMutableSet *toRemove = [NSMutableSet setWithSet:before];
+    [toRemove minusSet:after];
+    
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        [mapView addAnnotations:[toAdd allObjects]];
+        [mapView removeAnnotations:[toRemove allObjects]];
+    }];
+}
 
 - (RLMResults *)retrieveDataInMapRect:(MKMapRect)mapRect
 {
@@ -240,7 +252,7 @@ didFailToLocateUserWithError:(NSError *)error
                           withZoomScale:(MKZoomScale)zoomScale
 
 {
-    if (data.count < 100) {
+    if (data.count < 50) {
         return [self annotationsForData:data];
     }
     
@@ -253,25 +265,58 @@ didFailToLocateUserWithError:(NSError *)error
     NSInteger maxY = floor(MKMapRectGetMaxY(rect) * scaleFactor);
     
     NSMutableSet *clusteredAnnotations = [[NSMutableSet alloc] init];
+    
+    // Create nested array with mutable sets for the clusters
+    NSMutableArray *coordinateArray = @[].mutableCopy;
     for (NSInteger x = minX; x <= maxX; x++) {
+        
+        NSMutableArray *yArray = @[].mutableCopy;
+        
         for (NSInteger y = minY; y <= maxY; y++) {
-            MKMapRect mapRect = MKMapRectMake(x / scaleFactor, y / scaleFactor, 1.0 / scaleFactor, 1.0 / scaleFactor);
             
-            __block double totalLat = 0;
-            __block double totalLon = 0;
-            __block int count = 0;
+            NSMutableSet *cluster = [[NSMutableSet alloc] init];
+            
+            [yArray addObject:cluster];
+            
+        }
+        [coordinateArray addObject:yArray];
+    }
+    
+    for (TestDataObject *object in data) {
+        CLLocationCoordinate2D coordinate = CLLocationCoordinate2DMake(object.latitude, object.longitude);
+        
+        MKMapPoint point = MKMapPointForCoordinate(coordinate);
+        
+        NSInteger x = floor(point.x * scaleFactor);
+        NSInteger xDiff = abs(x - minX);
+        
+        NSInteger y = floor(point.y * scaleFactor);
+        NSInteger yDiff = abs(y - minY);
+        
+        NSMutableSet *cluster = coordinateArray[xDiff][yDiff];
+        
+        RBQSafeLocationObject *safeObject = [RBQSafeLocationObject safeLocationObjectWithObject:object
+                                                                                     coordinate:coordinate];
+        
+        [cluster addObject:safeObject];
+    }
+    
+    // Now create the annotations
+    for (NSArray *yArray in coordinateArray) {
+        for (NSSet *cluster in yArray) {
+            double totalLat = 0;
+            double totalLon = 0;
+            int count = 0;
             
             RBQClusterAnnotation *annotation = [[RBQClusterAnnotation alloc] initWithTitleKeyPath:nil
                                                                                   subTitleKeyPath:nil];
             
-            RLMResults *clusterResults = [self retrieveDataInMapRect:mapRect fromData:data];
-            
-            for (TestDataObject *data in clusterResults) {
-                totalLat += data.latitude;
-                totalLon += data.longitude;
+            for (RBQSafeLocationObject *safeObject in cluster) {
+                totalLat += safeObject.coordinate.latitude;
+                totalLon += safeObject.coordinate.longitude;
                 count++;
                 
-                [annotation addSafeObjectToCluster:[RBQSafeRealmObject safeObjectFromObject:data]];
+                [annotation addSafeObjectToCluster:safeObject];
             }
             
             if (count == 1) {
@@ -339,28 +384,6 @@ didFailToLocateUserWithError:(NSError *)error
                         options:kNilOptions
                      animations:animations
                      completion:nil];
-}
-
-- (NSArray *)annotationsWithinMapRect:(MKMapRect)rect
-{
-    
-    __block NSMutableArray *annotations = @[].mutableCopy;
-    
-    RBQQuadTreeManager *manager = [RBQQuadTreeManager managerForIndexRequest:self.indexRequest];
-
-    [manager retrieveDataInMapRect:rect
-                   dataReturnBlock:^(RBQQuadTreeDataObject *data) {
-            
-            CLLocationCoordinate2D coordinate = CLLocationCoordinate2DMake(data.latitude, data.longitude);
-            
-            if (CLLocationCoordinate2DIsValid(coordinate)) {
-                MapAnnotation *annotation = [[MapAnnotation alloc]initWithCoordinate:coordinate];
-                
-                [annotations addObject:annotation];
-            }
-                   }];
-    
-    return [NSArray arrayWithArray:annotations];
 }
 
 - (MKCoordinateRegion)coordinateRegionForAnnotations:(NSArray *)annotations

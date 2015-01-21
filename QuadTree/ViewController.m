@@ -9,8 +9,6 @@
 #import "ViewController.h"
 #import "LocationManager.h"
 #import "TestDataObject.h"
-#import "RBQQuadTreeManager.h"
-#import "RBQRealmNotificationManager.h"
 
 /*  Note the QuadTree manager is setup to re-index after the count of
  points drop under 80% of the total that was last indexed.
@@ -25,8 +23,6 @@ NSUInteger kRBQTestDeleteAmount = 20000;
 @property (strong, nonatomic) IBOutlet UIActivityIndicatorView *inMemorySpinner;
 @property (strong, nonatomic) IBOutlet UIActivityIndicatorView *inRealmSpinner;
 
-@property (strong, nonatomic) RBQIndexRequest *indexRequest;
-
 @end
 
 @implementation ViewController
@@ -35,13 +31,6 @@ NSUInteger kRBQTestDeleteAmount = 20000;
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
-    
-    self.indexRequest = [RBQIndexRequest createIndexRequestWithEntityName:@"TestDataObject"
-                                                                  inRealm:[RLMRealm defaultRealm]
-                                                          latitudeKeyPath:@"latitude"
-                                                         longitudeKeyPath:@"longitude"];
-    
-//    [RBQQuadTreeManager startOnDemandIndexingForIndexRequest:self.indexRequest];
 }
 
 - (void)didReceiveMemoryWarning
@@ -111,8 +100,6 @@ NSUInteger kRBQTestDeleteAmount = 20000;
                 
                 [realm addOrUpdateObject:object];
                 
-                [[RBQRealmNotificationManager managerForRealm:realm] didAddObject:object];
-                
                 if (i % 1000 == 0){
                     NSLog(@"Index: %ld", (long)i);
                 }
@@ -157,8 +144,6 @@ NSUInteger kRBQTestDeleteAmount = 20000;
                                                          forPrimaryKey:primaryKey];
 
                 if (object) {
-                    [[RBQRealmNotificationManager managerForRealm:realm] willDeleteObject:object];
-                    
                     [realm deleteObject:object];
                 }
                 

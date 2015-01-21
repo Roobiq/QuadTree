@@ -79,6 +79,20 @@ NSString *kRBQAnnotationViewReuseID = @"RBQAnnotationViewReuseID";
     [[NSOperationQueue new] addOperationWithBlock:^{
         double scale = self.mapView.bounds.size.width / self.mapView.visibleMapRect.size.width;
         RBQQuadTreeManager *manager = [RBQQuadTreeManager managerForIndexRequest:self.indexRequest];
+        
+//        NSMutableSet *annotations = [[NSMutableSet alloc] init];
+        
+//        NSLog(@"Started Getting Annotations");
+//        [manager retrieveDataInMapRect:mapView.visibleMapRect
+//                       dataReturnBlock:^(RBQQuadTreeDataObject *data) {
+//                           
+//                           RBQClusterAnnotation *annotation = [[RBQClusterAnnotation alloc] init];
+//                           annotation.coordinate = CLLocationCoordinate2DMake(data.latitude, data.longitude);
+//                           
+//                           [annotations addObject:annotation];
+//                       }];
+//        NSLog(@"Finished Getting Annotations");
+        
         NSLog(@"Started Getting Clusters");
         NSSet *annotations = [manager clusteredAnnotationsWithinMapRect:mapView.visibleMapRect
                                                           withZoomScale:scale

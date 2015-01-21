@@ -8,12 +8,14 @@
 
 /* Begin PBXBuildFile section */
 		548494C21D49C179464C4921 /* libPods-QuadTree.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 92AB325640E6EE313A8C9DD3 /* libPods-QuadTree.a */; };
-		6617B2611A685B6400C63F59 /* RBQSafeRealmObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 6617B25D1A685B6400C63F59 /* RBQSafeRealmObject.m */; };
 		6617B2651A685B8B00C63F59 /* TestDataObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 6617B2641A685B8B00C63F59 /* TestDataObject.m */; };
-		666625FB1A6C928600DC5849 /* TBClusterAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 666625F91A6C928600DC5849 /* TBClusterAnnotationView.m */; };
-		666625FE1A6C92BD00DC5849 /* RBQClusterAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 666625FD1A6C92BD00DC5849 /* RBQClusterAnnotation.m */; };
-		66B2362E1A70396300872F74 /* RBQSafeLocationObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 66B2362D1A70396300872F74 /* RBQSafeLocationObject.m */; };
-		66B236311A70433300872F74 /* RLMObject+Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 66B236301A70433300872F74 /* RLMObject+Utilities.m */; };
+		66B236521A7056BD00872F74 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 66B2364C1A7056BD00872F74 /* LICENSE */; };
+		66B236531A7056BD00872F74 /* RBQSafeRealmObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 66B2364E1A7056BD00872F74 /* RBQSafeRealmObject.m */; };
+		66B236541A7056BD00872F74 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = 66B2364F1A7056BD00872F74 /* README.md */; };
+		66B236551A7056BD00872F74 /* RLMObject+Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 66B236511A7056BD00872F74 /* RLMObject+Utilities.m */; };
+		66B236581A7056F700872F74 /* RBQSafeLocationObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 66B236571A7056F700872F74 /* RBQSafeLocationObject.m */; };
+		66B2365E1A70570400872F74 /* RBQClusterAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 66B2365B1A70570400872F74 /* RBQClusterAnnotation.m */; };
+		66B2365F1A70570400872F74 /* TBClusterAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 66B2365D1A70570400872F74 /* TBClusterAnnotationView.m */; };
 		66DD1A991A44878300A09A53 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 66DD1A981A44878300A09A53 /* main.m */; };
 		66DD1A9C1A44878300A09A53 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 66DD1A9B1A44878300A09A53 /* AppDelegate.m */; };
 		66DD1A9F1A44878300A09A53 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 66DD1A9E1A44878300A09A53 /* ViewController.m */; };
@@ -40,18 +42,20 @@
 
 /* Begin PBXFileReference section */
 		120FE5FCBA858E7FDF051677 /* Pods-QuadTree.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QuadTree.release.xcconfig"; path = "Pods/Target Support Files/Pods-QuadTree/Pods-QuadTree.release.xcconfig"; sourceTree = "<group>"; };
-		6617B25C1A685B6400C63F59 /* RBQSafeRealmObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RBQSafeRealmObject.h; path = ../RBQQuadTreeManager/Helpers/RBQSafeRealmObject.h; sourceTree = "<group>"; };
-		6617B25D1A685B6400C63F59 /* RBQSafeRealmObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RBQSafeRealmObject.m; path = ../RBQQuadTreeManager/Helpers/RBQSafeRealmObject.m; sourceTree = "<group>"; };
 		6617B2631A685B8B00C63F59 /* TestDataObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestDataObject.h; sourceTree = "<group>"; };
 		6617B2641A685B8B00C63F59 /* TestDataObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDataObject.m; sourceTree = "<group>"; };
-		666625F81A6C928600DC5849 /* TBClusterAnnotationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TBClusterAnnotationView.h; sourceTree = "<group>"; };
-		666625F91A6C928600DC5849 /* TBClusterAnnotationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TBClusterAnnotationView.m; sourceTree = "<group>"; };
-		666625FC1A6C92BD00DC5849 /* RBQClusterAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBQClusterAnnotation.h; sourceTree = "<group>"; };
-		666625FD1A6C92BD00DC5849 /* RBQClusterAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RBQClusterAnnotation.m; sourceTree = "<group>"; };
-		66B2362C1A70396300872F74 /* RBQSafeLocationObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RBQSafeLocationObject.h; path = ../RBQQuadTreeManager/Helpers/RBQSafeLocationObject.h; sourceTree = "<group>"; };
-		66B2362D1A70396300872F74 /* RBQSafeLocationObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RBQSafeLocationObject.m; path = ../RBQQuadTreeManager/Helpers/RBQSafeLocationObject.m; sourceTree = "<group>"; };
-		66B2362F1A70433300872F74 /* RLMObject+Utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RLMObject+Utilities.h"; sourceTree = "<group>"; };
-		66B236301A70433300872F74 /* RLMObject+Utilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RLMObject+Utilities.m"; sourceTree = "<group>"; };
+		66B2364C1A7056BD00872F74 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		66B2364D1A7056BD00872F74 /* RBQSafeRealmObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBQSafeRealmObject.h; sourceTree = "<group>"; };
+		66B2364E1A7056BD00872F74 /* RBQSafeRealmObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RBQSafeRealmObject.m; sourceTree = "<group>"; };
+		66B2364F1A7056BD00872F74 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		66B236501A7056BD00872F74 /* RLMObject+Utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RLMObject+Utilities.h"; sourceTree = "<group>"; };
+		66B236511A7056BD00872F74 /* RLMObject+Utilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RLMObject+Utilities.m"; sourceTree = "<group>"; };
+		66B236561A7056F700872F74 /* RBQSafeLocationObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBQSafeLocationObject.h; sourceTree = "<group>"; };
+		66B236571A7056F700872F74 /* RBQSafeLocationObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RBQSafeLocationObject.m; sourceTree = "<group>"; };
+		66B2365A1A70570400872F74 /* RBQClusterAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBQClusterAnnotation.h; sourceTree = "<group>"; };
+		66B2365B1A70570400872F74 /* RBQClusterAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RBQClusterAnnotation.m; sourceTree = "<group>"; };
+		66B2365C1A70570400872F74 /* TBClusterAnnotationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TBClusterAnnotationView.h; sourceTree = "<group>"; };
+		66B2365D1A70570400872F74 /* TBClusterAnnotationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TBClusterAnnotationView.m; sourceTree = "<group>"; };
 		66DD1A931A44878300A09A53 /* QuadTree.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QuadTree.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		66DD1A971A44878300A09A53 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		66DD1A981A44878300A09A53 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -98,16 +102,28 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		666625F51A6C928600DC5849 /* Annotations */ = {
+		66B2364B1A7056BD00872F74 /* RealmUtilities */ = {
 			isa = PBXGroup;
 			children = (
-				666625F81A6C928600DC5849 /* TBClusterAnnotationView.h */,
-				666625F91A6C928600DC5849 /* TBClusterAnnotationView.m */,
-				666625FC1A6C92BD00DC5849 /* RBQClusterAnnotation.h */,
-				666625FD1A6C92BD00DC5849 /* RBQClusterAnnotation.m */,
+				66B2364C1A7056BD00872F74 /* LICENSE */,
+				66B2364D1A7056BD00872F74 /* RBQSafeRealmObject.h */,
+				66B2364E1A7056BD00872F74 /* RBQSafeRealmObject.m */,
+				66B2364F1A7056BD00872F74 /* README.md */,
+				66B236501A7056BD00872F74 /* RLMObject+Utilities.h */,
+				66B236511A7056BD00872F74 /* RLMObject+Utilities.m */,
 			);
-			name = Annotations;
-			path = RBQQuadTreeManager/Annotations;
+			path = RealmUtilities;
+			sourceTree = "<group>";
+		};
+		66B236591A70570400872F74 /* Annotations */ = {
+			isa = PBXGroup;
+			children = (
+				66B2365A1A70570400872F74 /* RBQClusterAnnotation.h */,
+				66B2365B1A70570400872F74 /* RBQClusterAnnotation.m */,
+				66B2365C1A70570400872F74 /* TBClusterAnnotationView.h */,
+				66B2365D1A70570400872F74 /* TBClusterAnnotationView.m */,
+			);
+			path = Annotations;
 			sourceTree = "<group>";
 		};
 		66DD1A8A1A44878300A09A53 = {
@@ -133,10 +149,11 @@
 		66DD1A951A44878300A09A53 /* QuadTree */ = {
 			isa = PBXGroup;
 			children = (
+				66B236591A70570400872F74 /* Annotations */,
+				66B2364B1A7056BD00872F74 /* RealmUtilities */,
 				66DD1AD71A448FFA00A09A53 /* Views */,
 				66DD1ACC1A448B4300A09A53 /* Managers */,
 				66DD1AC11A448B2600A09A53 /* Models */,
-				666625F51A6C928600DC5849 /* Annotations */,
 				66DD1A9A1A44878300A09A53 /* AppDelegate.h */,
 				66DD1A9B1A44878300A09A53 /* AppDelegate.m */,
 				66DD1A9D1A44878300A09A53 /* ViewController.h */,
@@ -182,14 +199,10 @@
 		66DD1AC11A448B2600A09A53 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				66B236561A7056F700872F74 /* RBQSafeLocationObject.h */,
+				66B236571A7056F700872F74 /* RBQSafeLocationObject.m */,
 				6617B2631A685B8B00C63F59 /* TestDataObject.h */,
 				6617B2641A685B8B00C63F59 /* TestDataObject.m */,
-				6617B25C1A685B6400C63F59 /* RBQSafeRealmObject.h */,
-				6617B25D1A685B6400C63F59 /* RBQSafeRealmObject.m */,
-				66B2362C1A70396300872F74 /* RBQSafeLocationObject.h */,
-				66B2362D1A70396300872F74 /* RBQSafeLocationObject.m */,
-				66B2362F1A70433300872F74 /* RLMObject+Utilities.h */,
-				66B236301A70433300872F74 /* RLMObject+Utilities.m */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -321,6 +334,7 @@
 				66DD1AA71A44878300A09A53 /* LaunchScreen.xib in Resources */,
 				66DD1AA41A44878300A09A53 /* Images.xcassets in Resources */,
 				66DD1ADC1A4490CF00A09A53 /* USA-HotelMotel.csv in Resources */,
+				66B236521A7056BD00872F74 /* LICENSE in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -371,18 +385,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				66B236581A7056F700872F74 /* RBQSafeLocationObject.m in Sources */,
 				6617B2651A685B8B00C63F59 /* TestDataObject.m in Sources */,
 				66DD1ADF1A4494CC00A09A53 /* LocationManager.m in Sources */,
 				66DD1A9F1A44878300A09A53 /* ViewController.m in Sources */,
 				66DD1A9C1A44878300A09A53 /* AppDelegate.m in Sources */,
 				66DD1A991A44878300A09A53 /* main.m in Sources */,
-				6617B2611A685B6400C63F59 /* RBQSafeRealmObject.m in Sources */,
-				66B2362E1A70396300872F74 /* RBQSafeLocationObject.m in Sources */,
-				666625FB1A6C928600DC5849 /* TBClusterAnnotationView.m in Sources */,
+				66B236531A7056BD00872F74 /* RBQSafeRealmObject.m in Sources */,
+				66B2365E1A70570400872F74 /* RBQClusterAnnotation.m in Sources */,
+				66B236541A7056BD00872F74 /* README.md in Sources */,
+				66B2365F1A70570400872F74 /* TBClusterAnnotationView.m in Sources */,
+				66B236551A7056BD00872F74 /* RLMObject+Utilities.m in Sources */,
 				66DD1ADA1A448FFA00A09A53 /* MapAnnotation.m in Sources */,
-				66B236311A70433300872F74 /* RLMObject+Utilities.m in Sources */,
 				66DD1ABF1A44887F00A09A53 /* MapViewController.m in Sources */,
-				666625FE1A6C92BD00DC5849 /* RBQClusterAnnotation.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

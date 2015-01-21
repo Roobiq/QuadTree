@@ -1,0 +1,3 @@
+[submodule "QuadTree/RealmUtilities"]
+	path = QuadTree/RealmUtilities
+	url = https://github.com/Roobiq/RealmUtilities

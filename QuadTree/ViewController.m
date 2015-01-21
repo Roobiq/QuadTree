@@ -41,7 +41,7 @@ NSUInteger kRBQTestDeleteAmount = 20000;
                                                           latitudeKeyPath:@"latitude"
                                                          longitudeKeyPath:@"longitude"];
     
-    [RBQQuadTreeManager startOnDemandIndexingForIndexRequest:self.indexRequest];
+//    [RBQQuadTreeManager startOnDemandIndexingForIndexRequest:self.indexRequest];
 }
 
 - (void)didReceiveMemoryWarning

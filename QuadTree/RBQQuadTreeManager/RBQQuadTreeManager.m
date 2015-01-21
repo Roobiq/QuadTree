@@ -79,16 +79,16 @@ float RBQCellSizeForZoomScale(MKZoomScale zoomScale)
         case 13:
         case 14:
         case 15:
-            return 64;
+            return 128;
         case 16:
         case 17:
         case 18:
-            return 32;
+            return 96;
         case 19:
-            return 16;
+            return 64;
             
         default:
-            return 88;
+            return 160;
     }
 }
 

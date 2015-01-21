@@ -73,7 +73,7 @@
     if (self.safeObjects.count == 1) {
         RBQSafeRealmObject *safeObject = [self.internalSafeObjects anyObject];
         
-        return [[safeObject RLMObject] valueForKeyPath:self.titleKeyPath];
+        return @"";
     }
     else {
         return [NSString stringWithFormat:@"%lu objects in this area", (unsigned long)self.safeObjects.count];

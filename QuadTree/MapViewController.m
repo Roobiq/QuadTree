@@ -10,6 +10,7 @@
 #import "MapAnnotation.h"
 #import "RBQClusterAnnotation.h"
 #import "TBClusterAnnotationView.h"
+#import "TestDataObject.h"
 
 #import "RBQQuadTreeManager.h"
 
@@ -81,40 +82,18 @@ NSString *kRBQAnnotationViewReuseID = @"RBQAnnotationViewReuseID";
         
         // First get the RLMResults for the data
         NSLog(@"Started Doing Basic Query");
-        RLMResults *results = [manager retrieveDataInMapRect:mapView.visibleMapRect];
+        RLMResults *results = [self retrieveDataInMapRect:mapView.visibleMapRect];
         NSLog(@"Finished Doing Basic Query");
-        
-        
-        // Now do the quad tree query
-        NSMutableSet *quadTreeResults = [[NSMutableSet alloc] init];
-        
-        NSLog(@"Started Doing Quad Tree Query");
-        [manager retrieveDataInMapRect:mapView.visibleMapRect
-                       dataReturnBlock:^(RBQQuadTreeDataObject *data) {
-                           
-                           [quadTreeResults addObject:data];
-                       }];
-        NSLog(@"Finished Doing Quad Tree Query");
         
         double scale = self.mapView.bounds.size.width / self.mapView.visibleMapRect.size.width;
         
-//        NSLog(@"Started Cluster Query");
-//        NSSet *annotations = [manager clusteredAnnotationsWithinMapRect:mapView.visibleMapRect
-//                                                          withZoomScale:scale
-//                                                           titleKeyPath:@"name"
-//                                                        subTitleKeyPath:nil];
-//        NSLog(@"Finished Cluster Query");
+        NSLog(@"Started Doing Clustering");
+        NSSet *annotations = [self clusteredAnnotationsWithData:results
+                                                  withinMapRect:mapView.visibleMapRect
+                                                  withZoomScale:scale];
+        NSLog(@"Finished Doing Clustering");
         
-        NSLog(@"Started Cluster Query Realm");
-        NSSet *annotationsRealm = [manager clusteredAnnotationsWithinMapRectRealm:mapView.visibleMapRect
-                                                                    withZoomScale:scale
-                                                                     titleKeyPath:@"name"
-                                                                  subTitleKeyPath:nil];
-        NSLog(@"Finished Cluster Query Realm");
-        
-        NSLog(@"Basic Results Count: %d\nQuad Tree Results Count: %d",results.count, quadTreeResults.count);
-        
-        [manager displayAnnotations:annotationsRealm
+        [manager displayAnnotations:annotations
                           onMapView:mapView];
     }];
 }
@@ -145,80 +124,6 @@ NSString *kRBQAnnotationViewReuseID = @"RBQAnnotationViewReuseID";
         [self addBounceAnnimationToView:view];
     }
 }
-
-//#pragma mark - MKMapViewDelegate
-//
-//- (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
-//{
-//    if (self.didSetUserLocation) {
-//        MapAnnotation *annotation = [[MapAnnotation alloc]initWithCoordinate:mapView.centerCoordinate];
-//        
-//        annotation.title = @"Center";
-//        annotation.isClosest = YES;
-//        
-//        [mapView addAnnotation:annotation];
-//        
-//        [[NSOperationQueue new] addOperationWithBlock:^{
-//            DDLogInfo(@"Requested Annotations");
-//            NSArray *annotations = [self annotationsWithinMapRect:self.mapView.visibleMapRect];
-//            DDLogInfo(@"Returned Annotations");
-//            [self updateMapViewAnnotationsWithAnnotations:annotations];
-//            
-////            // Get the 10 closest points
-////            NSArray *closestPoints = [[LocationDBManager defaultManager] sortedNodeDataFromCoordinate:mapView.centerCoordinate maxResults:10];
-////            
-////            NSMutableArray *closestAnnotations = @[].mutableCopy;
-////            
-////            for (QuadTreeNodeData *data in closestPoints) {
-////                CLLocationCoordinate2D coordinate = CLLocationCoordinate2DMake(data.latitude, data.longitude);
-////                
-////                if (CLLocationCoordinate2DIsValid(coordinate)) {
-////                    MapAnnotation *annotation = [[MapAnnotation alloc]initWithCoordinate:coordinate];
-////                    
-////                    annotation.title = data.name;
-////                    annotation.Id = data.Id;
-////                    
-////                    [closestAnnotations addObject:annotation];
-////                }
-////            }
-////            
-////            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-////                [mapView addAnnotations:closestAnnotations];
-////            }];
-//        }];
-//    }
-//}
-
-//- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation
-//{
-//    if (![annotation isKindOfClass:[MKUserLocation class]]) {
-//        MKPinAnnotationView *annotationView = (MKPinAnnotationView *)[mapView dequeueReusableAnnotationViewWithIdentifier:kRBQAnnotationViewReuseID];
-//        if (annotationView == nil) {
-//            annotationView = [[MKPinAnnotationView alloc] initWithAnnotation:annotation
-//                                                             reuseIdentifier:kRBQAnnotationViewReuseID];
-//        }
-//        else {
-//            annotationView.annotation = annotation;
-//        }
-//        
-//        annotationView.pinColor = MKPinAnnotationColorRed;
-//        
-//        if ([annotation isKindOfClass:[MapAnnotation class]]) {
-//            MapAnnotation *mapAnnotation = (MapAnnotation *)annotation;
-//            
-//            if (mapAnnotation.isClosest) {
-//                annotationView.pinColor = MKPinAnnotationColorPurple;
-//            }
-//        }
-//        
-//        annotationView.canShowCallout = YES;
-//        annotationView.animatesDrop = YES;
-//        
-//        return annotationView;
-//    }
-//    
-//    return nil;
-//}
 
 - (void)mapView:(MKMapView *)mapView
 didUpdateUserLocation:(MKUserLocation *)userLocation
@@ -268,6 +173,139 @@ didFailToLocateUserWithError:(NSError *)error
 }
 
 #pragma mark - Private
+
+- (RLMResults *)retrieveDataInMapRect:(MKMapRect)mapRect
+{
+    CLLocationCoordinate2D topLeft = MKCoordinateForMapPoint(mapRect.origin);
+    CLLocationCoordinate2D botRight = MKCoordinateForMapPoint(MKMapPointMake(MKMapRectGetMaxX(mapRect), MKMapRectGetMaxY(mapRect)));
+    
+    CLLocationDegrees minLat = botRight.latitude;
+    CLLocationDegrees maxLat = topLeft.latitude;
+    
+    CLLocationDegrees minLon = topLeft.longitude;
+    CLLocationDegrees maxLon = botRight.longitude;
+    
+    NSPredicate *containsX = [NSPredicate predicateWithFormat:@"%K >= %f AND %K <= %f",
+                              @"latitude",
+                              minLat,
+                              @"latitude",
+                              maxLat];
+    
+    NSPredicate *containsY = [NSPredicate predicateWithFormat:@"%K >= %f AND %K <= %f",
+                              @"longitude",
+                              minLon,
+                              @"longitude",
+                              maxLon];
+    
+    NSCompoundPredicate *finalPredicate = [NSCompoundPredicate andPredicateWithSubpredicates:@[containsX,containsY]];
+    
+    RLMResults *data = [TestDataObject objectsWithPredicate:finalPredicate];
+    
+    return data;
+}
+
+- (RLMResults *)retrieveDataInMapRect:(MKMapRect)mapRect
+                             fromData:(RLMResults *)data
+{
+    CLLocationCoordinate2D topLeft = MKCoordinateForMapPoint(mapRect.origin);
+    CLLocationCoordinate2D botRight = MKCoordinateForMapPoint(MKMapPointMake(MKMapRectGetMaxX(mapRect), MKMapRectGetMaxY(mapRect)));
+    
+    CLLocationDegrees minLat = botRight.latitude;
+    CLLocationDegrees maxLat = topLeft.latitude;
+    
+    CLLocationDegrees minLon = topLeft.longitude;
+    CLLocationDegrees maxLon = botRight.longitude;
+    
+    NSPredicate *containsX = [NSPredicate predicateWithFormat:@"%K >= %f AND %K <= %f",
+                              @"latitude",
+                              minLat,
+                              @"latitude",
+                              maxLat];
+    
+    NSPredicate *containsY = [NSPredicate predicateWithFormat:@"%K >= %f AND %K <= %f",
+                              @"longitude",
+                              minLon,
+                              @"longitude",
+                              maxLon];
+    
+    NSCompoundPredicate *finalPredicate = [NSCompoundPredicate andPredicateWithSubpredicates:@[containsX,containsY]];
+    
+    RLMResults *subData = [data objectsWithPredicate:finalPredicate];
+    
+    return subData;
+}
+
+- (NSSet *)clusteredAnnotationsWithData:(RLMResults *)data
+                          withinMapRect:(MKMapRect)rect
+                          withZoomScale:(MKZoomScale)zoomScale
+
+{
+    if (data.count < 100) {
+        return [self annotationsForData:data];
+    }
+    
+    double RBQCellSize = RBQCellSizeForZoomScale(zoomScale);
+    double scaleFactor = zoomScale / RBQCellSize;
+    
+    NSInteger minX = floor(MKMapRectGetMinX(rect) * scaleFactor);
+    NSInteger maxX = floor(MKMapRectGetMaxX(rect) * scaleFactor);
+    NSInteger minY = floor(MKMapRectGetMinY(rect) * scaleFactor);
+    NSInteger maxY = floor(MKMapRectGetMaxY(rect) * scaleFactor);
+    
+    NSMutableSet *clusteredAnnotations = [[NSMutableSet alloc] init];
+    for (NSInteger x = minX; x <= maxX; x++) {
+        for (NSInteger y = minY; y <= maxY; y++) {
+            MKMapRect mapRect = MKMapRectMake(x / scaleFactor, y / scaleFactor, 1.0 / scaleFactor, 1.0 / scaleFactor);
+            
+            __block double totalLat = 0;
+            __block double totalLon = 0;
+            __block int count = 0;
+            
+            RBQClusterAnnotation *annotation = [[RBQClusterAnnotation alloc] initWithTitleKeyPath:nil
+                                                                                  subTitleKeyPath:nil];
+            
+            RLMResults *clusterResults = [self retrieveDataInMapRect:mapRect fromData:data];
+            
+            for (TestDataObject *data in clusterResults) {
+                totalLat += data.latitude;
+                totalLon += data.longitude;
+                count++;
+                
+                [annotation addSafeObjectToCluster:[RBQSafeRealmObject safeObjectFromObject:data]];
+            }
+            
+            if (count == 1) {
+                annotation.coordinate = CLLocationCoordinate2DMake(totalLat, totalLon);
+            }
+            else if (count > 1) {
+                annotation.coordinate = CLLocationCoordinate2DMake(totalLat / count, totalLon / count);
+            }
+            
+            [clusteredAnnotations addObject:annotation];
+        }
+    }
+    
+    return clusteredAnnotations.copy;
+}
+
+- (NSSet *)annotationsForData:(RLMResults *)allData
+{
+    NSMutableSet *annotations = [[NSMutableSet alloc] init];
+    
+    for (TestDataObject *data in allData) {
+        
+        RBQClusterAnnotation *annotation = [[RBQClusterAnnotation alloc] initWithTitleKeyPath:nil
+                                                                              subTitleKeyPath:nil];
+        
+        [annotation addSafeObjectToCluster:[RBQSafeRealmObject safeObjectFromObject:data]];
+        
+        annotation.coordinate = CLLocationCoordinate2DMake(data.latitude, data.longitude);
+        
+        [annotations addObject:annotation];
+    }
+    
+    return annotations.copy;
+}
 
 - (void)animateNotificationView:(BOOL)animate
 {

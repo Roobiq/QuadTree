@@ -7,6 +7,7 @@
 //
 
 #import "TestDataObject.h"
+#import "GeoHash.h"
 
 @implementation TestDataObject
 
@@ -18,7 +19,9 @@
     object.name = name;
     object.latitude = latitude;
     object.longitude = longitude;
-    object.key = [NSString stringWithFormat:@"%@-%f-%f",name,latitude,longitude];
+    object.key = [GeoHash hashForLatitude:latitude
+                                longitude:longitude
+                                   length:12];
     
     return object;
 }

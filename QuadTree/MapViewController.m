@@ -12,6 +12,9 @@
 #import "TBClusterAnnotationView.h"
 
 #import "RBQQuadTreeManager.h"
+#import "RBQGeohashUtils.h"
+#import "RBQBoundingBox.h"
+#import "TestDataObject.h"
 
 #import <MapKit/MapKit.h>
 
@@ -79,42 +82,88 @@ NSString *kRBQAnnotationViewReuseID = @"RBQAnnotationViewReuseID";
     [[NSOperationQueue new] addOperationWithBlock:^{
         RBQQuadTreeManager *manager = [RBQQuadTreeManager managerForIndexRequest:self.indexRequest];
         
-        // First get the RLMResults for the data
-        NSLog(@"Started Doing Basic Query");
-        RLMResults *results = [manager retrieveDataInMapRect:mapView.visibleMapRect];
-        NSLog(@"Finished Doing Basic Query");
+        RBQBoundingBox *boundingBox = [RBQBoundingBox boundingBoxForMapRect:mapView.visibleMapRect];
+        
+        NSLog(@"Started GeoHash Query");
+        RBQCoverageSet *set = RBQCoverageSetForBoundingBox(boundingBox);
+        
+        NSMutableSet *allResults = [[NSMutableSet alloc] initWithCapacity:set.hashes.count];
+        
+        for (NSString *hash in set.hashes) {
+            
+            NSPredicate *predicate = [NSPredicate predicateWithFormat:@"key BEGINSWITH %@",hash];
+            RLMResults *data = [TestDataObject objectsWithPredicate:predicate];
+            
+//            GHArea *area = [GeoHash areaForHash:hash];
+//            NSPredicate *containsX = [NSPredicate predicateWithFormat:@"%K >= %f AND %K <= %f",
+//                                      @"latitude",
+//                                      area.latitude.min.doubleValue,
+//                                      @"latitude",
+//                                      area.latitude.max.doubleValue];
+//            
+//            NSPredicate *containsY = [NSPredicate predicateWithFormat:@"%K >= %f AND %K <= %f",
+//                                      @"longitude",
+//                                      area.longitude.min.doubleValue,
+//                                      @"longitude",
+//                                      area.longitude.max.doubleValue];
+//            
+//            NSCompoundPredicate *finalPredicate = [NSCompoundPredicate andPredicateWithSubpredicates:@[containsX,containsY]];
+//            
+//            RLMResults *specificData = [data objectsWithPredicate:finalPredicate];
+            
+            [allResults addObject:data];
+        }
         
         
-        // Now do the quad tree query
-        NSMutableSet *quadTreeResults = [[NSMutableSet alloc] init];
+        NSMutableSet *annotations = [[NSMutableSet alloc] init];
+        for (RLMResults *allData in allResults) {
+            for (TestDataObject *data in allData) {
+                RBQClusterAnnotation *annotation = [[RBQClusterAnnotation alloc] init];
+                [annotation addObjectToCluster:data];
+                annotation.coordinate = CLLocationCoordinate2DMake(data.latitude, data.longitude);
+                
+                [annotations addObject:annotation];
+            }
+        }
         
-        NSLog(@"Started Doing Quad Tree Query");
-        [manager retrieveDataInMapRect:mapView.visibleMapRect
-                       dataReturnBlock:^(RBQQuadTreeDataObject *data) {
-                           
-                           [quadTreeResults addObject:data];
-                       }];
-        NSLog(@"Finished Doing Quad Tree Query");
+        NSLog(@"Finished GeoHash Query");
         
-        double scale = self.mapView.bounds.size.width / self.mapView.visibleMapRect.size.width;
-        
+//        // First get the RLMResults for the data
+//        NSLog(@"Started Doing Basic Query");
+//        RLMResults *results = [manager retrieveDataInMapRect:mapView.visibleMapRect];
+//        NSLog(@"Finished Doing Basic Query");
+//        
+//        
+//        // Now do the quad tree query
+//        NSMutableSet *quadTreeResults = [[NSMutableSet alloc] init];
+//        
+//        NSLog(@"Started Doing Quad Tree Query");
+//        [manager retrieveDataInMapRect:mapView.visibleMapRect
+//                       dataReturnBlock:^(RBQQuadTreeDataObject *data) {
+//                           
+//                           [quadTreeResults addObject:data];
+//                       }];
+//        NSLog(@"Finished Doing Quad Tree Query");
+//        
+//        double scale = self.mapView.bounds.size.width / self.mapView.visibleMapRect.size.width;
+//        
 //        NSLog(@"Started Cluster Query");
 //        NSSet *annotations = [manager clusteredAnnotationsWithinMapRect:mapView.visibleMapRect
 //                                                          withZoomScale:scale
 //                                                           titleKeyPath:@"name"
 //                                                        subTitleKeyPath:nil];
 //        NSLog(@"Finished Cluster Query");
+//        
+//        NSLog(@"Started Cluster Query Realm");
+//        NSSet *annotationsRealm = [manager clusteredAnnotationsWithinMapRectRealm:mapView.visibleMapRect
+//                                                                    withZoomScale:scale
+//                                                                     titleKeyPath:@"name"
+//                                                                  subTitleKeyPath:nil];
+//        NSLog(@"Finished Cluster Query Realm");
+//        
+//        NSLog(@"Basic Results Count: %d\nQuad Tree Results Count: %d",results.count, quadTreeResults.count);
         
-        NSLog(@"Started Cluster Query Realm");
-        NSSet *annotationsRealm = [manager clusteredAnnotationsWithinMapRectRealm:mapView.visibleMapRect
-                                                                    withZoomScale:scale
-                                                                     titleKeyPath:@"name"
-                                                                  subTitleKeyPath:nil];
-        NSLog(@"Finished Cluster Query Realm");
-        
-        NSLog(@"Basic Results Count: %d\nQuad Tree Results Count: %d",results.count, quadTreeResults.count);
-        
-        [manager displayAnnotations:annotationsRealm
+        [manager displayAnnotations:annotations
                           onMapView:mapView];
     }];
 }

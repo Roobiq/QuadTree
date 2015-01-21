@@ -20,6 +20,14 @@
 		6617B26E1A69ADC900C63F59 /* RBQQuadTreePropertiesObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 6617B26D1A69ADC900C63F59 /* RBQQuadTreePropertiesObject.m */; };
 		666625FB1A6C928600DC5849 /* TBClusterAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 666625F91A6C928600DC5849 /* TBClusterAnnotationView.m */; };
 		666625FE1A6C92BD00DC5849 /* RBQClusterAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 666625FD1A6C92BD00DC5849 /* RBQClusterAnnotation.m */; };
+		6666261E1A6F190900DC5849 /* RBQGeohashUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 6666261D1A6F190900DC5849 /* RBQGeohashUtils.m */; };
+		666626211A6F20DB00DC5849 /* RBQCoverageSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 666626201A6F20DB00DC5849 /* RBQCoverageSet.m */; };
+		666626241A6F24D100DC5849 /* RBQBoundingBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 666626231A6F24D100DC5849 /* RBQBoundingBox.m */; };
+		6666262F1A6F60E400DC5849 /* cgeohash.m in Sources */ = {isa = PBXBuildFile; fileRef = 666626261A6F60E400DC5849 /* cgeohash.m */; };
+		666626301A6F60E400DC5849 /* GeoHash.m in Sources */ = {isa = PBXBuildFile; fileRef = 666626281A6F60E400DC5849 /* GeoHash.m */; };
+		666626311A6F60E400DC5849 /* GHArea.m in Sources */ = {isa = PBXBuildFile; fileRef = 6666262A1A6F60E400DC5849 /* GHArea.m */; };
+		666626321A6F60E400DC5849 /* GHNeighbors.m in Sources */ = {isa = PBXBuildFile; fileRef = 6666262C1A6F60E400DC5849 /* GHNeighbors.m */; };
+		666626331A6F60E400DC5849 /* GHRange.m in Sources */ = {isa = PBXBuildFile; fileRef = 6666262E1A6F60E400DC5849 /* GHRange.m */; };
 		66DD1A991A44878300A09A53 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 66DD1A981A44878300A09A53 /* main.m */; };
 		66DD1A9C1A44878300A09A53 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 66DD1A9B1A44878300A09A53 /* AppDelegate.m */; };
 		66DD1A9F1A44878300A09A53 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 66DD1A9E1A44878300A09A53 /* ViewController.m */; };
@@ -70,6 +78,22 @@
 		666625F91A6C928600DC5849 /* TBClusterAnnotationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TBClusterAnnotationView.m; sourceTree = "<group>"; };
 		666625FC1A6C92BD00DC5849 /* RBQClusterAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBQClusterAnnotation.h; sourceTree = "<group>"; };
 		666625FD1A6C92BD00DC5849 /* RBQClusterAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RBQClusterAnnotation.m; sourceTree = "<group>"; };
+		6666261C1A6F190900DC5849 /* RBQGeohashUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBQGeohashUtils.h; sourceTree = "<group>"; };
+		6666261D1A6F190900DC5849 /* RBQGeohashUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RBQGeohashUtils.m; sourceTree = "<group>"; };
+		6666261F1A6F20DB00DC5849 /* RBQCoverageSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBQCoverageSet.h; sourceTree = "<group>"; };
+		666626201A6F20DB00DC5849 /* RBQCoverageSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RBQCoverageSet.m; sourceTree = "<group>"; };
+		666626221A6F24D100DC5849 /* RBQBoundingBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBQBoundingBox.h; sourceTree = "<group>"; };
+		666626231A6F24D100DC5849 /* RBQBoundingBox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RBQBoundingBox.m; sourceTree = "<group>"; };
+		666626251A6F60E400DC5849 /* cgeohash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cgeohash.h; sourceTree = "<group>"; };
+		666626261A6F60E400DC5849 /* cgeohash.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = cgeohash.m; sourceTree = "<group>"; };
+		666626271A6F60E400DC5849 /* GeoHash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoHash.h; sourceTree = "<group>"; };
+		666626281A6F60E400DC5849 /* GeoHash.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeoHash.m; sourceTree = "<group>"; };
+		666626291A6F60E400DC5849 /* GHArea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHArea.h; sourceTree = "<group>"; };
+		6666262A1A6F60E400DC5849 /* GHArea.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GHArea.m; sourceTree = "<group>"; };
+		6666262B1A6F60E400DC5849 /* GHNeighbors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHNeighbors.h; sourceTree = "<group>"; };
+		6666262C1A6F60E400DC5849 /* GHNeighbors.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GHNeighbors.m; sourceTree = "<group>"; };
+		6666262D1A6F60E400DC5849 /* GHRange.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHRange.h; sourceTree = "<group>"; };
+		6666262E1A6F60E400DC5849 /* GHRange.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GHRange.m; sourceTree = "<group>"; };
 		66DD1A931A44878300A09A53 /* QuadTree.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QuadTree.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		66DD1A971A44878300A09A53 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		66DD1A981A44878300A09A53 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -169,6 +193,29 @@
 			path = Annotations;
 			sourceTree = "<group>";
 		};
+		6666261B1A6F18E600DC5849 /* RBQGeohash */ = {
+			isa = PBXGroup;
+			children = (
+				666626251A6F60E400DC5849 /* cgeohash.h */,
+				666626261A6F60E400DC5849 /* cgeohash.m */,
+				666626271A6F60E400DC5849 /* GeoHash.h */,
+				666626281A6F60E400DC5849 /* GeoHash.m */,
+				666626291A6F60E400DC5849 /* GHArea.h */,
+				6666262A1A6F60E400DC5849 /* GHArea.m */,
+				6666262B1A6F60E400DC5849 /* GHNeighbors.h */,
+				6666262C1A6F60E400DC5849 /* GHNeighbors.m */,
+				6666262D1A6F60E400DC5849 /* GHRange.h */,
+				6666262E1A6F60E400DC5849 /* GHRange.m */,
+				6666261C1A6F190900DC5849 /* RBQGeohashUtils.h */,
+				6666261D1A6F190900DC5849 /* RBQGeohashUtils.m */,
+				6666261F1A6F20DB00DC5849 /* RBQCoverageSet.h */,
+				666626201A6F20DB00DC5849 /* RBQCoverageSet.m */,
+				666626221A6F24D100DC5849 /* RBQBoundingBox.h */,
+				666626231A6F24D100DC5849 /* RBQBoundingBox.m */,
+			);
+			path = RBQGeohash;
+			sourceTree = "<group>";
+		};
 		66DD1A8A1A44878300A09A53 = {
 			isa = PBXGroup;
 			children = (
@@ -192,6 +239,7 @@
 		66DD1A951A44878300A09A53 /* QuadTree */ = {
 			isa = PBXGroup;
 			children = (
+				6666261B1A6F18E600DC5849 /* RBQGeohash */,
 				6617B24E1A685AE700C63F59 /* RBQQuadTreeManager */,
 				66DD1AD71A448FFA00A09A53 /* Views */,
 				66DD1ACC1A448B4300A09A53 /* Managers */,
@@ -424,10 +472,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				666626211A6F20DB00DC5849 /* RBQCoverageSet.m in Sources */,
 				6617B2651A685B8B00C63F59 /* TestDataObject.m in Sources */,
 				66DD1ADF1A4494CC00A09A53 /* LocationManager.m in Sources */,
+				666626311A6F60E400DC5849 /* GHArea.m in Sources */,
+				666626301A6F60E400DC5849 /* GeoHash.m in Sources */,
 				6617B2681A685BA700C63F59 /* RBQQuadTreeManager.m in Sources */,
 				6617B2621A685B6400C63F59 /* RLMObject+Utilities.m in Sources */,
+				666626321A6F60E400DC5849 /* GHNeighbors.m in Sources */,
 				66DD1A9F1A44878300A09A53 /* ViewController.m in Sources */,
 				6617B2571A685B4600C63F59 /* RBQBoundingBoxObject.m in Sources */,
 				66DD1A9C1A44878300A09A53 /* AppDelegate.m in Sources */,
@@ -439,8 +491,12 @@
 				6617B26E1A69ADC900C63F59 /* RBQQuadTreePropertiesObject.m in Sources */,
 				666625FB1A6C928600DC5849 /* TBClusterAnnotationView.m in Sources */,
 				6617B26B1A685C1C00C63F59 /* RBQIndexRequest.m in Sources */,
+				6666261E1A6F190900DC5849 /* RBQGeohashUtils.m in Sources */,
+				6666262F1A6F60E400DC5849 /* cgeohash.m in Sources */,
+				666626241A6F24D100DC5849 /* RBQBoundingBox.m in Sources */,
 				66DD1ADA1A448FFA00A09A53 /* MapAnnotation.m in Sources */,
 				66DD1ABF1A44887F00A09A53 /* MapViewController.m in Sources */,
+				666626331A6F60E400DC5849 /* GHRange.m in Sources */,
 				666625FE1A6C92BD00DC5849 /* RBQClusterAnnotation.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

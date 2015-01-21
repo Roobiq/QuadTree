@@ -11,8 +11,8 @@
 BOOL boundingBoxContainsData(RBQBoundingBoxObject *box, RBQQuadTreeDataObject *data)
 {
     
-    BOOL containsX = box.x <= data.latitude && data.latitude <= box.width;
-    BOOL containsY = box.y <= data.longitude && data.longitude <= box.height;
+    BOOL containsX = box.x <= data.longitude && data.longitude <= box.width;
+    BOOL containsY = box.y <= data.latitude && data.latitude <= box.height;
     
     return containsX && containsY;
 }
